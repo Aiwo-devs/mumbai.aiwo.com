@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIWO 365 Kiosk — v1.0 · Zone 01 Signals · 1080×1920</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   AIWO 365 KIOSK · PROTOTYPE v1.0
+   Fixed canvas 1080 × 1920 · scale-to-fit · production geometry
+   Design language derived from FintechX (module/dashboard system)
+   Type: Space Grotesk + JetBrains Mono only
+   ⚠ Fonts load from CDN in this prototype. PRODUCTION MUST
+     self-host WOFF2 — there is no network at runtime.
+   ══════════════════════════════════════════════════════════════ */
+
+:root{
+  /* base — dark, because the panel sits inside a dark column under a 3000K strip */
+  --ink:#07090C;
+  --panel:#0D1116;
+  --panel-2:#11161C;
+  --line:#1B222A;
+  --line-2:#252E38;
+
+  /* text */
+  --bone:#EDEFF1;
+  --bone-2:#A8B2BA;
+  --mute:#6B7681;
+
+  /* the accent system encodes CONTENT STATUS — not decoration.
+     brass = confirmed & sourced · slate = awaiting clinical copy */
+  --brass:#C6A664;
+  --brass-hi:#E4C486;
+  --slate:#5C7A8C;
+
+  /* type */
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+
+  /* scale — set for 23" portrait, read standing at 500–700mm */
+  --t-xl:78px; --t-l:56px; --t-m:38px; --t-s:27px;
+  --b-l:24px;  --b-m:20px; --b-s:17px;
+  --m-l:14px;  --m-m:12px; --m-s:11px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#000}
+body{font-family:var(--display);color:var(--bone);-webkit-font-smoothing:antialiased;user-select:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--brass-hi);outline-offset:4px}
+
+/* ── fixed canvas, scaled to fit ─────────────────────────── */
+#fit{position:fixed;inset:0;background:#000;overflow:hidden}
+#stage{
+  position:absolute;left:0;top:0;
+  width:1080px;height:1920px;background:var(--ink);overflow:hidden;
+  display:flex;flex-direction:column;transform-origin:0 0;
+}
+
+/* ── header 108 ──────────────────────────────────────────── */
+.hdr{
+  height:108px;flex:0 0 108px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;border-bottom:1px solid var(--line);
+}
+.mark{display:flex;align-items:baseline;gap:14px}
+.mark .w{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.mark .n{font-size:30px;font-weight:300;color:var(--brass);letter-spacing:-.02em}
+.hdr-r{display:flex;align-items:center;gap:20px}
+.zonetag{
+  font-family:var(--mono);font-size:var(--m-m);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--brass);border:1px solid rgba(198,166,100,.32);padding:8px 14px;border-radius:3px;
+}
+.purpose{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+
+/* ── canvas ──────────────────────────────────────────────── */
+.canvas{flex:1 1 auto;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .32s ease,transform .32s ease;transform:translateY(14px)}
+.view.on{opacity:1;pointer-events:auto;transform:none}
+.pad{padding:44px 48px 28px;height:100%;display:flex;flex-direction:column}
+.scroll{overflow-y:auto;flex:1 1 auto;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── shared bits ─────────────────────────────────────────── */
+.eyebrow{font-family:var(--mono);font-size:var(--m-l);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+.crumb{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:var(--m-m);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--mute);flex:0 0 auto;margin-bottom:34px}
+.crumb button{color:var(--brass);border-bottom:1px solid rgba(198,166,100,.3);padding-bottom:3px}
+.crumb .sl{opacity:.35}
+
+/* ── ATTRACT ─────────────────────────────────────────────── */
+#v-attract{cursor:pointer;background:
+  radial-gradient(ellipse 70% 45% at 50% 38%,rgba(198,166,100,.10),transparent 70%),
+  var(--ink)}
+.attract-in{height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 78px}
+.attract-in .eyebrow{margin-bottom:44px}
+.attract-h{font-size:var(--t-xl);font-weight:300;line-height:1.04;letter-spacing:-.03em}
+.attract-h b{font-weight:600;color:var(--brass)}
+.attract-sub{margin-top:38px;font-size:var(--b-l);font-weight:300;line-height:1.62;color:var(--bone-2);max-width:23ch}
+.attract-rule{margin:56px 0 34px;height:1px;background:linear-gradient(90deg,var(--brass),transparent)}
+.attract-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.astat .k{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.astat .v{font-size:44px;font-weight:500;letter-spacing:-.03em;margin-top:8px}
+.astat .v small{font-size:19px;font-weight:400;color:var(--bone-2);margin-left:6px;letter-spacing:0}
+.attract-cta{margin-top:64px;font-family:var(--mono);font-size:var(--m-l);letter-spacing:.3em;
+  text-transform:uppercase;color:var(--bone-2);animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.32}50%{opacity:1}}
+
+/* ── L0 BODY ─────────────────────────────────────────────── */
+.l0head{flex:0 0 auto;margin-bottom:6px}
+.l0head h1{font-size:var(--t-m);font-weight:400;line-height:1.16;letter-spacing:-.022em;margin-top:14px;max-width:20ch}
+.bodyzone{flex:1 1 auto;position:relative;min-height:0}
+.bodysvg{width:100%;height:100%;display:block}
+.scanline{stroke:#6E93A8;stroke-width:1.6}
+.figline{fill:none;stroke:#4A6B7E;stroke-width:1.1;opacity:.55}
+.trace{fill:none;stroke:#3C6076;stroke-width:1.5;transition:stroke .28s,stroke-width .28s}
+.trace.lit{stroke:var(--brass);stroke-width:2.6}
+.node{fill:#6E93A8;transition:fill .28s,r .28s}
+.node.lit{fill:var(--brass-hi);r:8}
+.corelab{font-family:var(--mono);font-size:12px;letter-spacing:.24em;fill:var(--brass);text-transform:uppercase}
+.corering{fill:none;stroke:var(--brass);stroke-width:.9;opacity:.34}
+
+.fam{
+  position:absolute;width:326px;padding:12px 16px;border-left:2px solid transparent;
+  transition:border-color .24s,background .24s;
+}
+.fam.r{border-left:none;border-right:2px solid transparent;text-align:right}
+.fam:hover,.fam:focus-visible{border-color:var(--brass);background:linear-gradient(90deg,rgba(198,166,100,.09),transparent)}
+.fam.r:hover,.fam.r:focus-visible{background:linear-gradient(270deg,rgba(198,166,100,.09),transparent)}
+.fam .id{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.2em;color:var(--brass);opacity:.85}
+.fam .nm{font-size:var(--t-s);font-weight:500;letter-spacing:-.018em;line-height:1.14;margin-top:5px}
+.fam .ct{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-top:7px}
+.fam .blk{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:var(--m-s);letter-spacing:.13em;
+  color:var(--slate);border:1px solid rgba(92,122,140,.42);padding:3px 8px;border-radius:2px}
+.mapnote{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-family:var(--mono);
+  font-size:var(--m-s);letter-spacing:.14em;color:var(--slate)}
+
+/* ── MODULE (the FintechX-derived card) ──────────────────── */
+.mod{
+  border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:26px 26px 22px;
+  transition:border-color .24s,background .24s;position:relative;
+}
+.mod:hover{border-color:var(--line-2);background:var(--panel-2)}
+.mod-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.mod-id{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.chip{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 9px;border-radius:2px;border:1px solid}
+.chip.ok{color:var(--brass);border-color:rgba(198,166,100,.4)}
+.chip.pend{color:var(--slate);border-color:rgba(92,122,140,.4)}
+.mod-nm{font-size:32px;font-weight:500;letter-spacing:-.022em;line-height:1.1}
+.mod-full{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.15em;text-transform:uppercase;color:var(--brass);margin-top:9px}
+.mod-one{margin-top:15px;font-size:var(--b-s);font-weight:300;line-height:1.6;color:var(--bone-2)}
+.mod-go{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:var(--m-m);letter-spacing:.16em;text-transform:uppercase;color:var(--mute);
+  display:flex;justify-content:space-between;align-items:center}
+.mod:hover .mod-go{color:var(--brass)}
+
+/* ── L1 ──────────────────────────────────────────────────── */
+.l1-hero{display:grid;grid-template-columns:1fr;gap:20px;flex:0 0 auto;margin-bottom:34px}
+.l1-hero h2{font-size:var(--t-l);font-weight:400;letter-spacing:-.028em;line-height:1.02}
+.l1-q{font-size:var(--b-l);font-weight:300;color:var(--brass);line-height:1.42;max-width:26ch}
+.l1-meta{display:flex;gap:34px;padding-top:20px;border-top:1px solid var(--line);margin-top:6px}
+.l1-meta div .k{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.l1-meta div .v{font-size:var(--b-s);font-weight:400;margin-top:7px}
+.l1-listen{font-size:var(--b-m);font-weight:300;line-height:1.66;color:var(--bone-2);margin-top:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.notebox{border:1px dashed rgba(92,122,140,.45);border-radius:4px;padding:22px 24px;margin-top:26px}
+.notebox .h{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.notebox .b{margin-top:12px;font-size:var(--b-s);font-weight:300;line-height:1.66;color:var(--bone-2)}
+.blockbox{border:1px dashed rgba(92,122,140,.45);border-radius:4px;padding:40px 34px;margin-top:10px}
+.blockbox .h{font-family:var(--mono);font-size:var(--m-l);letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.blockbox .b{margin-top:18px;font-size:var(--b-l);font-weight:300;line-height:1.68;color:var(--bone-2)}
+
+/* ── L3 ──────────────────────────────────────────────────── */
+.l3-hero{flex:0 0 auto;margin-bottom:26px}
+.l3-hero h2{font-size:var(--t-l);font-weight:400;letter-spacing:-.03em;line-height:1}
+.l3-hero .full{font-family:var(--mono);font-size:var(--m-l);letter-spacing:.17em;text-transform:uppercase;color:var(--brass);margin-top:13px}
+.l3-strip{display:flex;gap:0;margin-top:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.l3-strip div{flex:1;padding:18px 0;border-right:1px solid var(--line)}
+.l3-strip div:last-child{border-right:none;padding-left:24px}
+.l3-strip div:not(:first-child){padding-left:24px}
+.l3-strip .k{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.l3-strip .v{font-size:var(--b-s);font-weight:400;margin-top:8px}
+
+.field{padding:26px 0;border-bottom:1px solid rgba(27,34,42,.75)}
+.field:first-child{padding-top:6px}
+.f-h{display:flex;align-items:baseline;gap:14px}
+.f-n{font-family:var(--mono);font-size:var(--m-s);color:var(--brass);opacity:.7}
+.f-l{font-family:var(--mono);font-size:var(--m-l);letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
+.f-b{margin-top:14px;font-size:var(--b-m);font-weight:300;line-height:1.72;color:var(--bone-2);max-width:44ch}
+.f-src{margin-top:12px;font-family:var(--mono);font-size:var(--m-s);letter-spacing:.1em;color:var(--mute);
+  padding-left:14px;border-left:1px solid var(--line-2);line-height:1.7;max-width:52ch}
+.f-pend{margin-top:14px;border:1px dashed rgba(92,122,140,.45);border-radius:4px;padding:18px 20px;max-width:44ch}
+.f-pend .t{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.18em;text-transform:uppercase;color:var(--slate)}
+.f-pend .d{margin-top:10px;font-size:var(--b-s);font-weight:300;line-height:1.66;color:var(--bone-2)}
+.marker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px;max-width:44ch}
+.marker{border:1px solid var(--line-2);border-radius:3px;padding:14px 10px;text-align:center}
+.marker .mn{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.1em;text-transform:uppercase;color:var(--bone-2);line-height:1.5}
+.pairs{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.pair{border:1px solid var(--line-2);border-radius:3px;padding:12px 18px;font-size:var(--b-s);transition:border-color .2s,color .2s}
+.pair:hover{border-color:var(--brass);color:var(--brass)}
+.acts{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+.act{border:1px solid var(--line-2);border-radius:3px;padding:18px 22px;min-width:250px;transition:border-color .2s,background .2s}
+.act:hover{border-color:var(--brass);background:rgba(198,166,100,.06)}
+.act.pri{border-color:rgba(198,166,100,.5)}
+.act .t{font-size:var(--b-s);font-weight:500}
+.act .s{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.15em;text-transform:uppercase;color:var(--mute);margin-top:8px;display:block}
+
+/* ── ZONE EXPLAINER (2–4) ────────────────────────────────── */
+.zx{height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 78px}
+.zx h2{font-size:var(--t-l);font-weight:400;letter-spacing:-.03em;line-height:1.02;margin-top:26px}
+.zx .fr{margin-top:26px;font-size:var(--b-l);font-weight:300;line-height:1.58;color:var(--brass);max-width:26ch}
+.zx .dm{margin-top:34px;padding-top:28px;border-top:1px solid var(--line);font-size:var(--b-m);
+  font-weight:300;line-height:1.7;color:var(--bone-2);max-width:40ch}
+.zx-rows{margin-top:34px;display:flex;flex-direction:column;gap:1px;background:var(--line)}
+.zx-rows .r{background:var(--ink);padding:20px 0;display:flex;gap:26px;align-items:baseline}
+.zx-rows .r .n{font-family:var(--mono);font-size:var(--m-m);color:var(--brass);letter-spacing:.14em;width:34px;flex:0 0 34px}
+.zx-rows .r .x{font-size:var(--b-m);font-weight:400}
+.zx-rows .r .y{margin-left:auto;font-family:var(--mono);font-size:var(--m-s);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--slate)}
+
+/* ── ANSWER DRAWER 320 ───────────────────────────────────── */
+.drawer{
+  height:320px;flex:0 0 320px;border-top:1px solid var(--line);background:var(--panel);
+  display:grid;grid-template-columns:1fr 268px;
+}
+.dr-l{padding:24px 30px;display:flex;flex-direction:column;min-width:0}
+.dr-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.dr-hd .k{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.22em;text-transform:uppercase;color:var(--brass)}
+.dr-hd .c{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.14em;color:var(--mute)}
+.qs{display:flex;flex-direction:column;gap:9px;overflow:hidden}
+.q{border:1px solid var(--line-2);border-radius:3px;padding:14px 17px;font-size:var(--b-s);
+  font-weight:300;color:var(--bone-2);transition:border-color .2s,color .2s;line-height:1.4}
+.q:hover{border-color:var(--brass);color:var(--bone)}
+.q .qm{font-family:var(--mono);font-size:var(--m-s);color:var(--brass);margin-right:11px;opacity:.75}
+.ans{border-left:2px solid var(--brass);padding:4px 0 4px 18px;font-size:var(--b-s);font-weight:300;
+  line-height:1.66;color:var(--bone-2);overflow-y:auto;flex:1 1 auto;scrollbar-width:none}
+.ans::-webkit-scrollbar{display:none}
+.ans .back{margin-top:14px;font-family:var(--mono);font-size:var(--m-s);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brass)}
+.dr-r{border-left:1px solid var(--line);padding:24px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.qr{width:150px;height:150px;border:1px dashed rgba(92,122,140,.55);border-radius:4px;
+  display:grid;place-items:center;text-align:center;padding:12px;
+  font-family:var(--mono);font-size:var(--m-s);letter-spacing:.1em;color:var(--slate);line-height:1.75}
+.dr-r .lb{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.15em;text-transform:uppercase;
+  color:var(--bone-2);text-align:center;line-height:1.6}
+
+/* ── COMPLIANCE 84 ───────────────────────────────────────── */
+.comp{
+  height:84px;flex:0 0 84px;border-top:1px solid var(--line);background:#05070A;
+  display:flex;align-items:center;justify-content:space-between;padding:0 48px;
+}
+.comp .t{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.comp .t b{color:var(--brass);font-weight:400}
+.idle{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.14em;color:var(--slate);opacity:0;transition:opacity .3s}
+.idle.on{opacity:1}
+
+/* ── OVERLAY ─────────────────────────────────────────────── */
+.ovl{position:absolute;inset:0;background:rgba(4,6,9,.93);display:none;align-items:center;justify-content:center;z-index:40;padding:70px}
+.ovl.on{display:flex}
+.card{width:100%;background:var(--panel);border:1px solid var(--line-2);border-top:3px solid var(--brass);
+  border-radius:4px;padding:52px 54px 44px}
+.card h3{font-size:var(--t-m);font-weight:400;line-height:1.14;letter-spacing:-.025em;margin-top:22px}
+.card h3 b{font-weight:600;color:var(--brass)}
+.card p{margin-top:22px;font-size:var(--b-m);font-weight:300;line-height:1.7;color:var(--bone-2);max-width:46ch}
+.way{margin-top:32px;display:flex;align-items:center;gap:24px;padding:24px 26px;
+  border:1px solid var(--line-2);border-radius:4px;background:rgba(198,166,100,.05)}
+.way .ar{font-size:34px;color:var(--brass);line-height:1}
+.way .z{font-size:var(--t-s);font-weight:500;letter-spacing:-.02em}
+.way .d{font-family:var(--mono);font-size:var(--m-m);letter-spacing:.15em;text-transform:uppercase;color:var(--mute);margin-top:8px}
+.cacts{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+.cb{padding:17px 26px;border:1px solid var(--line-2);border-radius:3px;font-family:var(--mono);
+  font-size:var(--m-l);letter-spacing:.18em;text-transform:uppercase;transition:border-color .2s,background .2s}
+.cb.g{border-color:var(--brass);color:var(--brass)}
+.cb:hover{background:rgba(198,166,100,.09)}
+.qrow{display:flex;gap:34px;align-items:center;margin-top:30px}
+.qurl{font-family:var(--mono);font-size:var(--b-s);line-height:1.95;color:var(--bone-2);word-break:break-all}
+.qurl s{text-decoration:none;color:var(--brass)}
+
+/* ── STAFF ───────────────────────────────────────────────── */
+.staff{position:absolute;top:0;right:0;bottom:0;width:430px;background:#04070A;border-left:1px solid var(--line-2);
+  z-index:60;transform:translateX(100%);transition:transform .3s;overflow-y:auto;padding:34px 30px;scrollbar-width:none}
+.staff::-webkit-scrollbar{display:none}
+.staff.on{transform:none}
+.staff h4{font-family:var(--mono);font-size:var(--m-l);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+.srow{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.srow .k{font-family:var(--mono);font-size:var(--m-s);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.srow .v{margin-top:9px;font-size:var(--b-s);font-weight:300;color:var(--bone-2);line-height:1.62}
+.sb{margin-top:11px;width:100%;padding:14px;border:1px solid var(--line-2);border-radius:3px;
+  font-family:var(--mono);font-size:var(--m-m);letter-spacing:.15em;text-transform:uppercase;transition:border-color .2s,color .2s}
+.sb:hover{border-color:var(--brass);color:var(--brass)}
+.sb.on{border-color:var(--brass);color:var(--brass)}
+.logbox{margin-top:11px;max-height:230px;overflow-y:auto;border:1px solid var(--line);border-radius:3px;
+  padding:12px;font-family:var(--mono);font-size:10px;line-height:1.85;color:var(--mute);scrollbar-width:none}
+.logbox::-webkit-scrollbar{display:none}
+
+/* ── DEV (prototype only, outside the canvas) ────────────── */
+.dev{position:fixed;left:0;bottom:0;z-index:90;display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  padding:9px 14px;background:#04070A;border-top:1px solid var(--line);border-right:1px solid var(--line);
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);max-width:100vw}
+.dev button{padding:7px 12px;border:1px solid var(--line-2);border-radius:2px;color:var(--mute);font-size:10px;
+  letter-spacing:.12em;transition:border-color .2s,color .2s}
+.dev button:hover{border-color:var(--brass);color:var(--brass)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="fit"><div id="stage">
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="mark" id="mark"><span class="w">AIWO</span><span class="n">365</span></div>
+    <div class="hdr-r">
+      <span class="zonetag" id="zonetag">Zone 01 · Signals</span>
+      <span class="purpose" id="purposetag">Diagnose</span>
+    </div>
+  </header>
+
+  <!-- CANVAS -->
+  <main class="canvas" id="canvas">
+
+    <!-- ATTRACT -->
+    <section class="view on" id="v-attract">
+      <div class="attract-in">
+        <div class="eyebrow">Ten years reading human biology</div>
+        <h1 class="attract-h">Before anyone advises you,<br>we <b>listen</b>.</h1>
+        <p class="attract-sub">Nine kinds of signal, from one person. Everything we capture before a word of advice is written.</p>
+        <div class="attract-rule"></div>
+        <div class="attract-stats">
+          <div class="astat"><div class="k">Signal families</div><div class="v">09</div></div>
+          <div class="astat"><div class="k">Biomarkers</div><div class="v">181</div></div>
+          <div class="astat"><div class="k">Measured</div><div class="v">4<small>× a year</small></div></div>
+        </div>
+        <div class="attract-cta">Touch to begin</div>
+      </div>
+    </section>
+
+    <!-- L0 -->
+    <section class="view" id="v-body">
+      <div class="pad">
+        <div class="l0head">
+          <div class="eyebrow">01 · Signals — Diagnose</div>
+          <h1>Every signal your body sends</h1>
+        </div>
+        <div class="bodyzone" id="bodyzone">
+          <svg class="bodysvg" viewBox="0 0 1080 1040" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <clipPath id="figclip">
+                <ellipse cx="540" cy="110" rx="46" ry="56"/>
+                <rect x="522" y="156" width="36" height="34"/>
+                <path d="M440,190 Q540,166 640,190 L630,430 L616,572 L464,572 L450,430 Z"/>
+                <path d="M438,195 L400,400 L386,562 L420,568 L436,412 L464,252 Z"/>
+                <path d="M642,195 L680,400 L694,562 L660,568 L644,412 L616,252 Z"/>
+                <path d="M470,558 L458,776 L448,968 L500,972 L514,776 L524,600 Z"/>
+                <path d="M610,558 L622,776 L632,968 L580,972 L566,776 L556,600 Z"/>
+              </clipPath>
+            </defs>
+            <g class="figline">
+              <ellipse cx="540" cy="110" rx="46" ry="56"/>
+              <path d="M440,190 Q540,166 640,190 L630,430 L616,572 L464,572 L450,430 Z"/>
+              <path d="M438,195 L400,400 L386,562 L420,568 L436,412"/>
+              <path d="M642,195 L680,400 L694,562 L660,568 L644,412"/>
+              <path d="M470,558 L458,776 L448,968 L500,972 L514,776 L524,600"/>
+              <path d="M610,558 L622,776 L632,968 L580,972 L566,776 L556,600"/>
+            </g>
+            <g clip-path="url(#figclip)" id="scan"></g>
+            <g class="corering"><circle cx="540" cy="320" r="86"/><circle cx="540" cy="320" r="112"/></g>
+            <text class="corelab" x="540" y="316" text-anchor="middle">AIWO</text>
+            <text class="corelab" x="540" y="336" text-anchor="middle">ASSESSMENTS</text>
+            <g id="traces"></g>
+            <g id="nodes"></g>
+          </svg>
+          <div class="mapnote">⚠ anatomical mapping unconfirmed — ageing, genetic, wearables and mental need clinical review</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- L1 -->
+    <section class="view" id="v-fam"><div class="pad"><div class="scroll" id="fampage"></div></div></section>
+
+    <!-- L3 -->
+    <section class="view" id="v-inst"><div class="pad"><div class="scroll" id="instpage"></div></div></section>
+
+    <!-- ZONE 2–4 EXPLAINER -->
+    <section class="view" id="v-zone"><div class="zx" id="zonepage"></div></section>
+
+    <!-- GATE -->
+    <div class="ovl" id="o-gate"><div class="card">
+      <div class="eyebrow">Not in this zone</div>
+      <h3>You've seen what we capture.<br>What it <b>means</b> is the next zone.</h3>
+      <p id="gatebody"></p>
+      <div class="way"><span class="ar">→</span><div><div class="z">Interpretation</div>
+        <div class="d">Two steps along the spiral · reports open there</div></div></div>
+      <div class="cacts">
+        <button class="cb g" onclick="closeOvl('o-gate');openTake()">Take this with me</button>
+        <button class="cb" onclick="closeOvl('o-gate')">Keep exploring signals</button>
+      </div>
+    </div></div>
+
+    <!-- TAKEAWAY -->
+    <div class="ovl" id="o-take"><div class="card">
+      <div class="eyebrow">Take it with you</div>
+      <h3>Scan to keep <b id="takenm">this</b> on your phone</h3>
+      <p>The kiosk stays here. Your phone opens the page on your own connection, and the scan tells us which zone started the conversation.</p>
+      <div class="qrow">
+        <div class="qr" style="width:190px;height:190px;flex:0 0 190px">QR PLACEHOLDER<br>⚠ real asset<br>pending</div>
+        <div class="qurl" id="takeurl"></div>
+      </div>
+      <div class="cacts"><button class="cb" onclick="closeOvl('o-take')">Done</button></div>
+    </div></div>
+
+    <!-- CONSULTATION -->
+    <div class="ovl" id="o-cons"><div class="card">
+      <div class="eyebrow">Where this starts</div>
+      <h3>It starts with a <b>consultation</b>.</h3>
+      <p>At the centre of the stall, a physician-led conversation maps the year to your goals. It is the first step of the programme, and it is where AIWO 365 begins.</p>
+      <div class="way"><span class="ar">◎</span><div><div class="z">Consultation core</div>
+        <div class="d">Centre of the stall · walk inward</div></div></div>
+      <div class="cacts"><button class="cb" onclick="closeOvl('o-cons')">Back to signals</button></div>
+    </div></div>
+
+    <!-- STAFF -->
+    <aside class="staff" id="staff">
+      <h4>Staff panel</h4>
+      <div class="srow"><div class="k">Device</div><div class="v" id="s-dev"></div></div>
+      <div class="srow"><div class="k">Content version</div><div class="v" id="s-ver"></div></div>
+      <div class="srow"><div class="k">Content status</div><div class="v" id="s-stat"></div></div>
+      <div class="srow"><div class="k">Zone (production: set in config.json)</div>
+        <button class="sb" onclick="setZone('signals')" id="z1">Zone 01 · Signals</button>
+        <button class="sb" onclick="setZone('interpretation')" id="z2">Zone 02 · Interpretation</button>
+        <button class="sb" onclick="setZone('intervention')" id="z3">Zone 03 · Intervention</button>
+        <button class="sb" onclick="setZone('system')" id="z4">Zone 04 · The System</button>
+      </div>
+      <div class="srow"><div class="k">Event log — production writes JSONL to disk</div>
+        <div class="logbox" id="s-log"></div>
+        <button class="sb" onclick="clearLog()">Clear log</button></div>
+      <div class="srow"><div class="k">Prototype deviations from production</div>
+        <div class="v">Fonts load from Google Fonts CDN. Production self-hosts WOFF2 — there is no network at runtime.<br><br>
+        Event log is in memory. Production appends to logs/events.jsonl via Electron IPC.<br><br>
+        Zone switcher above exists for validation only. In production config.json fixes the zone at boot.</div></div>
+      <div class="srow"><button class="sb" onclick="goHome();closeStaff()">Force reset to attract</button></div>
+      <div class="srow"><button class="sb" onclick="closeStaff()">Close</button></div>
+    </aside>
+
+  </main>
+
+  <!-- DRAWER -->
+  <section class="drawer" id="drawer">
+    <div class="dr-l">
+      <div class="dr-hd"><span class="k">Common questions</span><span class="c" id="dr-ctx">Signals</span></div>
+      <div class="qs" id="qs"></div>
+      <div class="ans" id="ans" style="display:none"></div>
+    </div>
+    <div class="dr-r">
+      <div class="qr" id="qr-mini">QR<br>⚠ placeholder</div>
+      <div class="lb" id="qr-lb">Scan to keep this<br>and to book</div>
+    </div>
+  </section>
+
+  <!-- COMPLIANCE -->
+  <footer class="comp">
+    <div class="t">Wellness information · not a diagnosis · <b>no specific outcome is guaranteed</b></div>
+    <div class="idle" id="idle">Still there? Resetting in <span id="idlen">10</span></div>
+  </footer>
+
+</div></div>
+
+<!-- PROTOTYPE CONTROLS (not in production build) -->
+<div class="dev">
+  <span>Prototype controls · not in production</span>
+  <button onclick="goHome()">Reset</button>
+  <button onclick="forceIdle()">Force idle</button>
+  <button onclick="openStaff()">Staff panel</button>
+  <span id="scaleread"></span>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════════════════
+   config.json — THE ONLY PER-MACHINE FILE IN PRODUCTION
+   ═════════════════════════════════════════════════════════════ */
+let CONFIG = { device:'Z1-A', zone:'signals' };
+
+/* ═════════════════════════════════════════════════════════════
+   content.v1.json — every clinical field is SOURCED or PENDING.
+   Nothing clinical is invented.
+   ═════════════════════════════════════════════════════════════ */
+const P = d => ({s:'pending', brief:d});
+const S = (t,src) => ({s:'sourced', text:t, src:src});
+
+const ZONES = {
+  signals:        { n:'01', name:'Signals',        purpose:'Diagnose'  },
+  interpretation: { n:'02', name:'Interpretation', purpose:'Understand',
+    framing:'Anyone can measure. The difference is what we read in it.',
+    demonstrates:'Signals alone are noise. Interpretation is the value — AIWO smart reports and the consultation that turns raw signal into meaning.',
+    rows:[['01','A full sample smart report, opened and navigated','Asset pending'],
+          ['02','What is in range, what is trending, what connects to what','Asset pending'],
+          ['03','The consultation — a physician reading the whole picture','Content pending'],
+          ['04','A decade of practice: what a hundred thousand readings teach','Content pending']] },
+  intervention:   { n:'03', name:'Intervention',   purpose:'Act',
+    framing:'Your report sets the target. We build the year that moves it.',
+    demonstrates:'Interpretation becomes a plan. Goals in, protocol out — which disciplines engage, in what order, over what period.',
+    rows:[['01','Goal-setting board — one thing you want different in a year','Content pending'],
+          ['02','A finding, and the integrated response it triggers','Content pending'],
+          ['03','The seven-layer stack — what the protocol prescribes','⚠ Layers undefined'],
+          ['04','Directional targets only — ↓ / ↑ / into range','Compliance-locked']] },
+  system:         { n:'04', name:'The System',     purpose:'Sustain',
+    framing:'This is what a year inside AIWO actually looks like.',
+    demonstrates:'Living the year — the protocol book, the daily velocity report, LifeOS in your pocket, and the human care layer that holds it together.',
+    rows:[['01','The Living Protocol Book — Revision 01 and Revision 04','Asset pending'],
+          ['02','LifeOS — wearables in, velocity report out','⚠ Demo build pending'],
+          ['03','The CareLayer — a week in your year','Content pending'],
+          ['04','Four quarter gates — Day 90 / 180 / 270 / 365','Content pending']] }
+};
+
+const FAMILIES = [
+ {id:'blood', n:'01', name:'Blood Work', side:'l', top:'40.5%', node:[506,300], label:[356,470],
+  q:'What is your chemistry doing right now?',
+  listens:'⚠ Family framing copy pending — this paragraph explains, in plain language, what this group of signals listens to and why it comes first.',
+  cadence:'Day 1 · retested quarterly',
+  inst:[
+   {id:'aiwo181', name:'AIWO 181', full:'AIWO Health Advanced', one:'⚠ One-line identity pending', cadence:'Day 1 · quarterly retest',
+    why:P('Which question about a person does this panel answer that nothing else does?'),
+    what:S(['Metabolic','Cardiovascular','Hormonal','Inflammatory','Nutritional'],
+           'Stall Planner v1.1, Zone 1 — 181 markers grouped into readable families so the panel reads as a shape, not a number'),
+    how:P('Sample type, where it is drawn, how long it takes, how results are returned.'),
+    prep:P('Fasting, timing of day, medication notes, what to bring.'),
+    limits:P('What this panel does NOT tell you. Do not cut this field — it is the credibility field.'),
+    fits:P('Where the panel sits in the AIWO 365 year and how it is re-read at each quarter gate.'),
+    pairs:['aiwo100','omega3']},
+   {id:'aiwo100', name:'AIWO 100', full:'AIWO Health Foundation', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('The question this panel answers, and who it is the right starting point for.'),
+    what:P('Marker families covered, expressed as a shape rather than a list.'),
+    how:P('Sample type, setting, turnaround.'), prep:P('Fasting and timing requirements.'),
+    limits:P('What it does not cover, and when the 181 is the better instrument.'),
+    fits:S('Two AIWO 100 blood tests are included in the ₹2,33,800 AIWO Longevity Gift carried by every AIWO summit ticket holder.',
+           'SOURCE_OF_TRUTH — Longevity Gift contents'),
+    pairs:['aiwo181']},
+   {id:'pcos', name:'PCOS Profile', full:'PCOS Profile', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('Who this profile is for and what it clarifies.'), what:P('What is measured.'),
+    how:P('Sample and process.'), prep:P('Preparation and cycle timing.'),
+    limits:P('Boundaries of what this profile establishes.'), fits:P('How it feeds the wider picture.'), pairs:['aiwo181']},
+   {id:'omega3', name:'Omega 3 Index', full:'Omega 3 Index', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What this index tells you that a standard panel does not.'),
+    what:P('What is measured and how the index is expressed.'), how:P('Sample type and process.'),
+    prep:P('Preparation.'), limits:P('What it does not establish.'), fits:P('Its role across the year.'), pairs:['aiwo181']}
+  ]},
+
+ {id:'imaging', n:'02', name:'Imaging', side:'r', top:'17%', node:[580,556], label:[724,200],
+  q:'What does your structure look like from the inside?',
+  listens:'⚠ Family framing copy pending.', cadence:'⚠ Pending',
+  note:'⚠ SCOPE OPEN — whole-body MRI and photon-counting cardiac CT appear in the Healthcation but not in the AIWO service price list. AIWO-delivered or partner-delivered?',
+  inst:[
+   {id:'dexa', name:'DEXA Scan', full:'DEXA Scan', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What DEXA settles about body composition and bone that nothing else does.'),
+    what:P('What the scan reports.'), how:P('Process, duration, setting.'), prep:P('Clothing, metal, timing.'),
+    limits:S('Not performed or demonstrated at the summit stall. Radiation-emitting; requires AERB licensing and a controlled room. Part of the full assessment at the AIWO centre.',
+             'Stall Planner v1.1, Signals Live Area — scope boundary'),
+    fits:P('Its place in the year and retest cadence.'), pairs:[]}
+  ]},
+
+ {id:'physical', n:'03', name:'Physical Performance', side:'r', top:'38%', node:[622,756], label:[724,420],
+  q:'What can your body actually do?',
+  listens:'⚠ Family framing copy pending.', cadence:'⚠ Pending',
+  note:'⚠ Grip strength and functional biological age are measured live at the stall but carry no service line. Foot Stability and Posture Screening appear here as assessment and in Intervention as therapy — a naming decision is required.',
+  inst:[
+   {id:'vo2', name:'VO₂ Max', full:'VO₂ Max Test', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What VO₂ max establishes about capacity.'), what:P('What is measured.'),
+    how:P('Metabolic cart, maximal exertion protocol, duration.'), prep:P('Preparation and readiness.'),
+    limits:S('Not performed or demonstrated at the summit stall. Requires a metabolic cart and maximal exertion — not safe in a hall. Part of the full assessment at the AIWO centre.',
+             'Stall Planner v1.1, Signals Live Area — scope boundary'),
+    fits:P('Its role across the year.'), pairs:['rmr']},
+   {id:'rmr', name:'RMR', full:'RMR Test', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What resting metabolic rate settles.'), what:P('What is measured.'), how:P('Process and duration.'),
+    prep:P('Fasting and rest requirements.'), limits:P('Boundaries.'), fits:P('Role in the year.'), pairs:['vo2']},
+   {id:'posture', name:'Posture Screening', full:'Posture Screening', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What a posture screen reveals.'), what:P('What is assessed.'),
+    how:S('Measured live at the Signals live area — visual / app-based, approximately 60 seconds, by a physiotherapist or trained assessor.',
+          'Stall Planner v1.1, Signals Live Area'),
+    prep:P('Clothing and readiness.'),
+    limits:S('A wellness screening, not a medical examination or diagnosis. Results are indicative.',
+             'Stall Planner v1.1 — live area compliance line'),
+    fits:P('How it carries into the protocol.'), pairs:['cervical']},
+   {id:'cervical', name:'Cervical Flexibility', full:'Cervical Flexibility', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What this assessment establishes.'), what:P('What is measured.'), how:P('Process.'),
+    prep:P('Preparation.'), limits:P('Boundaries.'), fits:P('Role in the year.'), pairs:['posture']}
+  ]},
+
+ {id:'ageing', n:'04', name:'Ageing', side:'l', top:'74%', node:[464,832], label:[356,850],
+  q:'How fast are you actually ageing?',
+  listens:'⚠ Family framing copy pending.', cadence:'⚠ Pending',
+  note:'⚠ Biological age appears twice in this system — epigenetic here, functional at the live area. Both must be labelled distinctly or they read as contradictory.',
+  inst:[
+   {id:'epi', name:'Epigenetic Age', full:'Epigenetic Age Test', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What pace of ageing means, and why it differs from chronological age.'),
+    what:S('Delivered via TruDiagnostic, including DunedinPACE.',
+           'SOURCE_OF_TRUTH — Healthcation programme depth. ⚠ Mark permission for public display pending'),
+    how:P('Sample type and process.'), prep:P('Preparation.'),
+    limits:P('Statistical framing — what an epigenetic read can and cannot establish.'),
+    fits:P('Retest cadence across the year.'), pairs:['gene']}
+  ]},
+
+ {id:'genetic', n:'05', name:'Genetic', side:'r', top:'76%', node:[618,878], label:[724,840],
+  q:'What did you start with?',
+  listens:'⚠ Family framing copy pending.', cadence:'Once · read against every retest',
+  note:'⚠ SelfDecode name/mark permission for printed and on-screen material is still open.',
+  inst:[
+   {id:'gene', name:'Gene Test', full:'Gene Test', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What the genome adds that no blood panel can.'), what:P('Scope of the read.'),
+    how:P('Sample type and process.'), prep:P('Preparation.'),
+    limits:P('MANDATORY: statistical risk framing, never certainty. Compliance-critical field.'),
+    fits:P('How it is re-read against changing data across the year.'), pairs:['epi']}
+  ]},
+
+ {id:'gut', n:'06', name:'Gut', side:'l', top:'57%', node:[510,462], label:[356,660],
+  q:'What is living in you, and what disagrees with you?',
+  listens:'⚠ Family framing copy pending.', cadence:'⚠ Pending',
+  inst:[
+   {id:'micro', name:'Gut Microbiome', full:'Gut Microbiome Test', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What the microbiome read answers.'), what:P('What is sequenced and reported.'),
+    how:P('Sample collection and turnaround.'), prep:P('Diet and medication notes before sampling.'),
+    limits:P('What a microbiome read does not establish.'), fits:P('Retest cadence.'), pairs:['food']},
+   {id:'food', name:'Food Intolerance', full:'Food Intolerance Test', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('What this clarifies and — importantly — what it is not.'), what:P('What is measured.'),
+    how:P('Sample and process.'), prep:P('Preparation.'),
+    limits:P('COMPLIANCE-CRITICAL: intolerance is not allergy. This distinction must be explicit.'),
+    fits:P('How findings feed the nutrition strand.'), pairs:['micro']}
+  ]},
+
+ {id:'sleep', n:'07', name:'Sleep Study', side:'l', top:'23%', node:[562,130], label:[356,280],
+  q:'What happens to you across eight hours of dark?',
+  listens:'⚠ Family framing copy pending.', cadence:'⚠ Pending',
+  blocker:'This family is named in the Signals source diagram and in the Healthcation programme, but has no line in the AIWO service price list — no service name, no price, no delivery method. It cannot be built until it is defined.',
+  inst:[]},
+
+ {id:'wear', n:'08', name:'Wearables · LifeOS', side:'r', top:'58%', node:[696,558], label:[724,640],
+  q:'What do the other 364 days look like?',
+  listens:'⚠ Family framing copy pending. This is where assessment becomes continuous — the year is not four tests, it is a constant stream.',
+  cadence:'Continuous',
+  blocker:'LifeOS is the AIWO member app and takes in Oura, Whoop, Apple and other wearable data — real and shippable. But there is no service line for it, so its commercial framing on a Signals screen is undecided: bundled-only, or a node in its own right?',
+  inst:[]},
+
+ {id:'mental', n:'09', name:'Mental', side:'l', top:'6%', node:[510,92], label:[356,100],
+  q:'Who are you, in a way that changes what works for you?',
+  listens:'⚠ Family framing copy pending.', cadence:'⚠ Pending',
+  note:'⚠ NEO instrument licensing — whether any items may be shown publicly is unresolved. Assume a paraphrased taster returning a trait-dimension illustration, never a score, unless cleared.',
+  inst:[
+   {id:'neo', name:'NEO Assessment', full:'Psychological Assessment (NEO Test)', one:'⚠ One-line identity pending', cadence:'⚠ Pending',
+    why:P('Why a psychological instrument belongs in a longevity assessment at all — this field has to earn the visitor\'s attention.'),
+    what:P('Trait dimensions returned, described without reproducing licensed items.'),
+    how:P('Administration, duration, how it is returned.'), prep:P('Preparation.'),
+    limits:P('Not a clinical psychological diagnosis. Compliance-critical.'),
+    fits:S('The NEO psychological assessment is the instrument inside the ₹1,20,000 AIWO Longevity Design Plan.',
+           'Stall Planner v1.1, Zone 1'),
+    pairs:[]}
+  ]}
+];
+
+const QA = {
+  zone:[
+    {q:'What do you actually measure?', a:'Nine kinds of signal, and only one of them is blood. Chemistry, imaging, physical capacity, pace of ageing, genetics, gut, sleep, continuous wearable data, and psychological profile. Touch any of them on the body.'},
+    {q:'Do I have to do all nine?', a:'⚠ No confirmed content for this answer. In production the screen states that plainly rather than improvising — this is the honest-gap behaviour under test.'},
+    {q:'Can I see a sample report?', gate:true, a:'Not in this zone, and that is deliberate. A report without someone to read it is just numbers. Interpretation, two steps along the spiral, opens one properly.'},
+    {q:'Will this reverse my diabetes?', a:'AIWO does not diagnose or treat any condition — that stays with your treating physician. What AIWO does is measure and support the optimisation of your health across the year. Our physician at the centre of the stall can walk you through where that line sits.'}
+  ],
+  inst:[
+    {q:'Why does this one matter?', a:'⚠ Awaiting clinical copy. Read the "Why this exists" field above — it carries the same answer once written.'},
+    {q:'What does it not tell me?', a:'Every instrument on this screen states its own limits in the fifth field. That field is deliberate: an honest limitation is worth more than another claim.'},
+    {q:'Can I see what the report looks like?', gate:true, a:'Not in this zone. Interpretation opens a full sample report — two steps along the spiral.'}
+  ]
+};
+
+/* ═════════════════════════════════════════════════════════════
+   STATE — one store, mirrors the Zustand shape in production
+   ═════════════════════════════════════════════════════════════ */
+const BY = {}; FAMILIES.forEach(f=>f.inst.forEach(i=>BY[i.id]={...i,famId:f.id,famName:f.name}));
+let view='attract', curFam=null, curInst=null, LOG=[];
+
+const $ = id => document.getElementById(id);
+
+/* ── event log (production: fs.appendFileSync to events.jsonl) ── */
+function log(event, extra){
+  LOG.push({ts:new Date().toISOString().slice(11,19), ...CONFIG, event, ...(extra||{})});
+  if(LOG.length>400) LOG.shift();
+  const b=$('s-log'); if(b){b.textContent=LOG.slice(-60).map(e=>JSON.stringify(e)).join('\n'); b.scrollTop=b.scrollHeight;}
+}
+function clearLog(){ LOG=[]; $('s-log').textContent=''; }
+
+/* ── scale-to-fit ────────────────────────────────────────── */
+function fit(){
+  const s=Math.min(innerWidth/1080, innerHeight/1920);
+  const x=(innerWidth  - 1080*s)/2;
+  const y=(innerHeight - 1920*s)/2;
+  $('stage').style.transform=`translate(${x}px,${y}px) scale(${s})`;
+  $('scaleread').textContent=`1080×1920 @ ${(s*100).toFixed(0)}%`;
+}
+addEventListener('resize',fit); fit();
+
+/* ── build the scan-line body ────────────────────────────── */
+(function(){
+  let g='';
+  for(let y=54;y<=980;y+=8){
+    const d=0.34+0.46*Math.abs(Math.sin(y/86));
+    g+=`<line class="scanline" x1="378" y1="${y}" x2="702" y2="${y}" opacity="${d.toFixed(2)}"/>`;
+  }
+  $('scan').innerHTML=g;
+})();
+
+/* ── build traces, nodes and family labels ───────────────── */
+(function(){
+  let tr='', nd='';
+  const zone=$('bodyzone');
+  FAMILIES.forEach(f=>{
+    const [nx,ny]=f.node, [lx,ly]=f.label;
+    const mx=(nx+lx)/2, my=ly+(ny-ly)*0.35;
+    tr+=`<path class="trace" data-f="${f.id}" d="M${lx},${ly} Q${mx},${my} ${nx},${ny}"/>`;
+    nd+=`<circle class="node" data-f="${f.id}" cx="${nx}" cy="${ny}" r="5.5"/>`;
+
+    const b=document.createElement('button');
+    b.className='fam'+(f.side==='r'?' r':'');
+    b.style.top=f.top; b.style[f.side==='l'?'left':'right']='0px';
+    b.innerHTML=`<div class="id">${f.n}</div><div class="nm">${f.name}</div>
+      <div class="ct">${f.inst.length? f.inst.length+' instrument'+(f.inst.length>1?'s':'') : 'not yet defined'}</div>
+      ${f.blocker?'<span class="blk">⚠ blocker</span>':''}`;
+    b.onclick=()=>openFam(f.id);
+    const on=v=>document.querySelectorAll(`[data-f="${f.id}"]`).forEach(e=>e.classList.toggle('lit',v));
+    b.onmouseenter=()=>on(true); b.onmouseleave=()=>on(false);
+    b.onfocus=()=>on(true); b.onblur=()=>on(false);
+    zone.appendChild(b);
+  });
+  $('traces').innerHTML=tr; $('nodes').innerHTML=nd;
+})();
+
+/* ── view routing — ZONE LOCK LIVES HERE ─────────────────── */
+function show(v){
+  view=v;
+  ['v-attract','v-body','v-fam','v-inst','v-zone'].forEach(id=>$(id).classList.toggle('on',id==='v-'+v.replace('attract','attract')));
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
+  $('v-'+v).classList.add('on');
+  resetIdle();
+}
+function goHome(){
+  closeAll(); curFam=null; curInst=null;
+  if(CONFIG.zone==='signals'){ show('attract'); } else { renderZone(); show('zone'); }
+  drawer(QA.zone, ZONES[CONFIG.zone].name, null);
+  log('idle_reset');
+}
+function goBody(){ curInst=null; show('body'); drawer(QA.zone,'Signals',null); log('view_body'); }
+
+$('v-attract').onclick=()=>{ show('body'); drawer(QA.zone,'Signals',null); log('session_start'); };
+
+/* ── L1 ──────────────────────────────────────────────────── */
+function openFam(id){
+  if(CONFIG.zone!=='signals') return;                 // zone lock
+  curFam=FAMILIES.find(f=>f.id===id); curInst=null;
+  const f=curFam;
+  $('fampage').innerHTML=`
+    <div class="crumb"><button onclick="goBody()">← The body</button><span class="sl">/</span><span>${f.n} · ${f.name}</span></div>
+    <div class="l1-hero">
+      <div class="eyebrow">Signal family ${f.n}</div>
+      <h2>${f.name}</h2>
+      <div class="l1-q">${f.q}</div>
+      <div class="l1-meta">
+        <div><div class="k">Instruments</div><div class="v">${f.inst.length||'—'}</div></div>
+        <div><div class="k">Cadence</div><div class="v">${f.cadence}</div></div>
+        <div><div class="k">Status</div><div class="v">${f.blocker?'Blocked':'Defined'}</div></div>
+      </div>
+      <div class="l1-listen">${f.listens}</div>
+      ${f.note?`<div class="notebox"><div class="h">Open item</div><div class="b">${f.note}</div></div>`:''}
+    </div>
+    ${f.inst.length
+      ? `<div class="grid2">${f.inst.map(i=>{
+          const pend=['why','what','how','prep','limits','fits'].filter(k=>i[k].s==='pending').length;
+          return `<button class="mod" onclick="openInst('${i.id}')">
+            <div class="mod-top"><span class="mod-id">${f.n}·${i.id}</span>
+              <span class="chip ${pend===6?'pend':'ok'}">${6-pend}/6 written</span></div>
+            <div class="mod-nm">${i.name}</div>
+            <div class="mod-full">${i.full}</div>
+            <div class="mod-one">${i.one}</div>
+            <div class="mod-go"><span>Open the full picture</span><span>→</span></div>
+          </button>`}).join('')}</div>`
+      : `<div class="blockbox"><div class="h">⚠ Blocked — cannot be built yet</div><div class="b">${f.blocker}</div></div>`}
+  `;
+  show('fam'); drawer(QA.zone, f.name, null); log('family_open',{node:'family.'+f.id});
+}
+
+/* ── L3 ──────────────────────────────────────────────────── */
+function openInst(id){
+  curInst=BY[id]; const i=curInst, f=FAMILIES.find(x=>x.id===i.famId);
+  const F=(n,label,fld)=>{
+    if(fld.s==='sourced'){
+      const body = Array.isArray(fld.text)
+        ? `<div class="marker-grid">${fld.text.map(t=>`<div class="marker"><div class="mn">${t}</div></div>`).join('')}</div>`
+        : `<div class="f-b">${fld.text}</div>`;
+      return `<div class="field"><div class="f-h"><span class="f-n">${n}</span><span class="f-l">${label}</span></div>
+        ${body}<div class="f-src">Source · ${fld.src}</div></div>`;
+    }
+    return `<div class="field"><div class="f-h"><span class="f-n">${n}</span><span class="f-l">${label}</span></div>
+      <div class="f-pend"><div class="t">Awaiting clinical copy</div><div class="d">${fld.brief}</div></div></div>`;
+  };
+  const pairs=(i.pairs||[]).filter(p=>BY[p]);
+  const pend=['why','what','how','prep','limits','fits'].filter(k=>i[k].s==='pending').length;
+
+  $('instpage').innerHTML=`
+    <div class="crumb"><button onclick="goBody()">← The body</button><span class="sl">/</span>
+      <button onclick="openFam('${f.id}')">${f.name}</button><span class="sl">/</span><span>${i.name}</span></div>
+    <div class="l3-hero">
+      <div class="eyebrow">Instrument</div>
+      <h2>${i.name}</h2>
+      <div class="full">${i.full}</div>
+      <div class="l3-strip">
+        <div><div class="k">Family</div><div class="v">${f.name}</div></div>
+        <div><div class="k">Cadence</div><div class="v">${i.cadence}</div></div>
+        <div><div class="k">Content</div><div class="v">${6-pend} of 6 written</div></div>
+      </div>
+    </div>
+    ${F('01','Why this exists',i.why)}
+    ${F('02','What it measures',i.what)}
+    ${F('03','How it is done',i.how)}
+    ${F('04','What to prepare',i.prep)}
+    ${F('05','What it does not tell you',i.limits)}
+    ${F('06','Where it fits in your year',i.fits)}
+    ${pairs.length?`<div class="field"><div class="f-h"><span class="f-n">↔</span><span class="f-l">Read alongside</span></div>
+      <div class="pairs">${pairs.map(p=>`<button class="pair" onclick="openInst('${p}')">${BY[p].name} →</button>`).join('')}</div></div>`:''}
+    <div class="acts">
+      <button class="act pri" onclick="openGate()"><span class="t">See what the report looks like</span>
+        <span class="s">Gated · lives in Interpretation</span></button>
+      <button class="act" onclick="openOvl('o-cons')"><span class="t">Where this starts</span>
+        <span class="s">The consultation at the centre</span></button>
+    </div>`;
+  $('instpage').parentElement.scrollTop=0;
+  show('inst'); drawer(QA.inst, i.name, i.id);
+  log('instrument_open',{node:'instrument.'+i.id, depth:3});
+}
+
+/* ── ZONES 2–4 explainer ─────────────────────────────────── */
+function renderZone(){
+  const z=ZONES[CONFIG.zone];
+  if(CONFIG.zone==='signals') return;
+  $('zonepage').innerHTML=`
+    <div class="eyebrow">${z.n} · ${z.name} — ${z.purpose}</div>
+    <h2>${z.name}</h2>
+    <div class="fr">${z.framing}</div>
+    <div class="dm">${z.demonstrates}</div>
+    <div class="zx-rows">${z.rows.map(r=>`<div class="r"><span class="n">${r[0]}</span>
+      <span class="x">${r[1]}</span><span class="y">${r[2]}</span></div>`).join('')}</div>`;
+}
+
+/* ── ANSWER DRAWER ───────────────────────────────────────── */
+function drawer(set, ctx, node){
+  $('dr-ctx').textContent=ctx;
+  $('ans').style.display='none'; $('qs').style.display='flex';
+  $('qs').innerHTML='';
+  set.slice(0,4).forEach((item,ix)=>{
+    const b=document.createElement('button'); b.className='q';
+    b.innerHTML=`<span class="qm">0${ix+1}</span>${item.q}`;
+    b.onclick=()=>{
+      $('qs').style.display='none'; $('ans').style.display='block';
+      $('ans').innerHTML=`${item.a}<div class="back" onclick="drawer(${set===QA.inst?'QA.inst':'QA.zone'},'${ctx.replace(/'/g,"")}',null)">← All questions</div>`;
+      log('qa_expand',{q:item.q});
+      if(item.gate) setTimeout(openGate,650);
+      resetIdle();
+    };
+    $('qs').appendChild(b);
+  });
+  const slug=node||CONFIG.zone;
+  $('qr-lb').innerHTML = node ? `Scan to keep<br><b>${BY[node]?BY[node].name:slug}</b>` : 'Scan to keep this<br>and to book';
+  $('qr-mini').innerHTML=`QR<br>${slug}<br>⚠ placeholder`;
+}
+
+/* ── OVERLAYS ────────────────────────────────────────────── */
+function openOvl(id){ $(id).classList.add('on'); resetIdle(); }
+function closeOvl(id){ $(id).classList.remove('on'); resetIdle(); }
+function closeAll(){ document.querySelectorAll('.ovl').forEach(o=>o.classList.remove('on')); closeStaff(); }
+function openGate(){
+  const n=curInst?curInst.name:'this signal';
+  $('gatebody').textContent=`Signals shows you how ${n} works — why it exists, what it measures, what it can and cannot tell you. A real report, with a real read on it, opens two zones along. The gate is deliberate: the picture only means something once someone has read it.`;
+  openOvl('o-gate'); log('gate_fired',{node:curInst?curInst.id:'zone'});
+}
+function openTake(){
+  const slug=curInst?curInst.id:CONFIG.zone;
+  $('takenm').textContent=curInst?curInst.name:'this';
+  $('takeurl').innerHTML=`aiwo.com/services/<s>${slug}</s><br>?utm_source=lsi2026<br>&amp;utm_medium=stall<br>&amp;zone=<s>${CONFIG.zone}</s><br>&amp;node=<s>${slug}</s><br>&amp;device=<s>${CONFIG.device}</s><br><br>⚠ real service URLs unconfirmed`;
+  openOvl('o-take'); log('qr_shown',{node:slug});
+}
+
+/* ── ZONE SWITCH (prototype validation only) ─────────────── */
+function setZone(z){
+  CONFIG.zone=z; CONFIG.device={signals:'Z1-A',interpretation:'Z2-A',intervention:'Z3-A',system:'Z4-A'}[z];
+  const Z=ZONES[z];
+  $('zonetag').textContent=`Zone ${Z.n} · ${Z.name}`;
+  $('purposetag').textContent=Z.purpose;
+  ['z1','z2','z3','z4'].forEach((id,ix)=>$(id).classList.toggle('on',['signals','interpretation','intervention','system'][ix]===z));
+  $('s-dev').textContent=`${CONFIG.device} · /${z}`;
+  goHome();
+}
+
+/* ── STAFF ───────────────────────────────────────────────── */
+let taps=0,tapT;
+$('mark').onclick=()=>{ taps++; clearTimeout(tapT); tapT=setTimeout(()=>taps=0,900); if(taps>=3){taps=0;openStaff();} };
+function openStaff(){ $('staff').classList.add('on'); }
+function closeStaff(){ $('staff').classList.remove('on'); }
+
+/* ── IDLE ────────────────────────────────────────────────── */
+let idleT,warnT,cd,cdT;
+function resetIdle(){
+  clearTimeout(idleT); clearTimeout(warnT); clearInterval(cdT); $('idle').classList.remove('on');
+  if(view==='attract') return;
+  warnT=setTimeout(()=>{ cd=10; $('idlen').textContent=cd; $('idle').classList.add('on');
+    cdT=setInterval(()=>{cd--;$('idlen').textContent=Math.max(cd,0);},1000); },35000);
+  idleT=setTimeout(goHome,45000);
+}
+function forceIdle(){
+  clearTimeout(idleT); clearTimeout(warnT); clearInterval(cdT);
+  cd=3; $('idlen').textContent=cd; $('idle').classList.add('on');
+  cdT=setInterval(()=>{cd--;$('idlen').textContent=Math.max(cd,0);},1000);
+  idleT=setTimeout(goHome,3200);
+}
+['click','keydown','touchstart'].forEach(e=>document.addEventListener(e,resetIdle));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
+
+/* ── BOOT ────────────────────────────────────────────────── */
+(function(){
+  let sourced=0,pending=0,blocked=0;
+  FAMILIES.forEach(f=>{ if(f.blocker)blocked++;
+    f.inst.forEach(i=>['why','what','how','prep','limits','fits'].forEach(k=> i[k].s==='sourced'?sourced++:pending++)); });
+  $('s-stat').innerHTML=`${sourced} fields sourced<br>${pending} awaiting clinical copy<br>${blocked} families blocked`;
+  $('s-ver').textContent='content.v1.json · 9 families · 14 instruments';
+  $('s-dev').textContent=`${CONFIG.device} · /${CONFIG.zone}`;
+  $('z1').classList.add('on');
+  drawer(QA.zone,'Signals',null);
+  log('boot');
+})();
+</script>
+</body>
+</html>
