@@ -1,0 +1,102 @@
+.testimonials {
+  background: var(--color-bg);
+}
+
+.testimonials__head {
+  margin-bottom: 40px;
+}
+
+/* A modest testimonial count renders best as one seamless row, list doubled
+   for the loop, rather than a static grid or a generic slider library. */
+.testimonial-marquee {
+  overflow: hidden;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+
+.testimonial-track {
+  display: flex;
+  width: max-content;
+  /* --testimonial-scroll-duration is computed in Testimonials.tsx from the
+     actual card count, to hold a ~7s/card reading pace regardless of how many
+     testimonials a given page has. The 42s fallback only applies if the
+     variable is somehow unset. */
+  animation: testimonial-scroll var(--testimonial-scroll-duration, 42s) linear infinite;
+}
+
+.testimonial-track:hover,
+.testimonial-track:focus-within {
+  animation-play-state: paused;
+}
+
+@keyframes testimonial-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-card {
+  flex: 0 0 360px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-right: 1px solid var(--color-border);
+  padding: 24px 28px 22px;
+  margin: 0;
+}
+
+.testimonial-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.testimonial-card__author {
+  font-size: 13.8px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.testimonial-card__context {
+  font-size: 12.8px;
+  color: var(--color-text-secondary);
+}
+
+.testimonial-card__quote {
+  font-size: 15.4px;
+  line-height: 1.55;
+  color: var(--color-text);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .testimonial-card {
+    flex: 0 0 300px;
+    width: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-track {
+    animation: none;
+  }
+
+  .testimonial-card--duplicate {
+    display: none;
+  }
+
+  .testimonial-marquee {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}

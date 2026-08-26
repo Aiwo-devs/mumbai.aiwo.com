@@ -1,0 +1,112 @@
+.services-menu {
+  position: relative;
+}
+
+/* Same visual language as the other .site-nav__links items — a plain text
+   trigger, not a new "chip" or "pill" treatment. */
+.services-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.services-menu__trigger:hover {
+  background: var(--color-emphasis-tint);
+}
+
+.services-menu__trigger--active {
+  background: var(--color-emphasis-tint-strong);
+}
+
+.services-menu__chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+}
+
+.services-menu:hover .services-menu__chevron,
+.services-menu:focus-within .services-menu__chevron,
+.services-menu--open .services-menu__chevron {
+  transform: rotate(180deg);
+}
+
+/* Flush against the trigger's own box (top: 100%, no margin) so the pointer
+   is always over either the trigger or the panel while moving between them —
+   a real gap here (even via margin, which still offsets an absolutely
+   positioned box) is exactly what causes a dropdown to vanish mid-hover.
+   The visible breathing room above the links comes from padding-top on the
+   panel's own content instead, which doesn't move the panel's hit-box. */
+.services-menu__panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  padding: 14px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  pointer-events: none;
+}
+
+/* The visible 8px margin-top above is purely visual spacing on the panel's
+   own box — the panel's hit-testable area still starts flush at the
+   trigger's bottom edge (position: absolute; top: 100%), so :hover
+   continuity across that margin is unaffected. */
+.services-menu:hover .services-menu__panel,
+.services-menu:focus-within .services-menu__panel,
+.services-menu--open .services-menu__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.services-menu__link {
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.services-menu__link:hover {
+  background: var(--color-emphasis-tint);
+}
+
+.services-menu__link--active {
+  background: var(--color-emphasis-tint-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services-menu__panel {
+    transition: opacity 0.18s ease, visibility 0.18s;
+    transform: none;
+  }
+
+  .services-menu__chevron {
+    transition: none;
+  }
+}

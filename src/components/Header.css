@@ -1,0 +1,252 @@
+.site-nav {
+  position: relative;
+  z-index: 100;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-nav__bar {
+  display: flex;
+  align-items: center;
+  height: var(--nav-height);
+  gap: 32px;
+}
+
+.site-nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.site-nav__logo img {
+  height: 30px;
+  width: auto;
+}
+
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.site-nav__links a {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.site-nav__links a:hover {
+  background: var(--color-emphasis-tint);
+}
+
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.site-nav__login {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-nav__login:hover {
+  color: var(--color-text);
+}
+
+/* The nav CTA is deliberately quiet (secondary, not primary) — the page
+   relies on the hero/section CTAs for real conversion weight. Now renders
+   through the shared Button component (variant="secondary"); this rule only
+   handles the full/short label swap below. */
+
+.site-nav__burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  margin-left: -10px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.site-nav__burger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-emphasis-tint-strong);
+}
+
+.site-nav__burger span {
+  width: 18px;
+  height: 1.5px;
+  background: var(--color-ink);
+  margin: 0 auto;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.site-nav__burger--open span:first-child {
+  transform: translateY(3.25px) rotate(45deg);
+}
+
+.site-nav__burger--open span:last-child {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+/* top is set inline (Header.tsx) from the header's live getBoundingClientRect().bottom
+   — this already accounts for the announcement bar's height above it, whatever that
+   happens to be (it changes if the banner text wraps), rather than a fixed
+   --nav-height offset that only ever covered the header. bottom: 0 (instead of a
+   computed height) lets the drawer's height follow naturally from top+bottom. */
+.site-nav__mobile {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px var(--container-pad) 24px;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.site-nav__mobile a {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+/* Now renders through the shared Button component (variant="primary",
+   size="lg") — this rule only keeps the spacing/divider adjustments that
+   don't come from the button system itself. The drawer's general `a` rule
+   below (border-bottom, padding, color) would otherwise still apply since
+   this is also an anchor/Link inside .site-nav__mobile; border-bottom is
+   explicitly cleared since Button doesn't set one on its own, and color is
+   re-asserted since the general rule's extra tag selector (.site-nav__mobile a)
+   otherwise outranks .btn--primary's own class-only selector, silently
+   overriding the button's white text back to the drawer's default dark ink —
+   invisible text on the ink-filled button. */
+.site-nav__mobile-cta {
+  margin-top: 14px;
+  border-bottom: none !important;
+  color: var(--color-text-on-dark) !important;
+}
+
+.site-nav__mobile-login {
+  text-align: center;
+  border-bottom: none !important;
+}
+
+/* Mobile Services accordion — same row rhythm as the plain drawer links
+   above (font-size/padding/divider), just as a <button> disclosure control
+   instead of a link, since it doesn't navigate anywhere itself. */
+.site-nav__mobile-services-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-divider);
+  padding: 12px 2px;
+  cursor: pointer;
+}
+
+.site-nav__mobile-services-trigger--active {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.site-nav__mobile-services-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+}
+
+.site-nav__mobile-services-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Indented sub-list — visually nested under the trigger rather than reading
+   as a fifth identical top-level link. Lighter divider, smaller type. */
+.site-nav__mobile-services-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-nav__mobile-services-panel .site-nav__mobile-services-link {
+  padding: 12px 2px 12px 16px;
+  border-bottom: 1px solid var(--color-divider);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.site-nav__mobile-services-link--active {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav__mobile-services-chevron {
+    transition: none;
+  }
+}
+
+@media (max-width: 1080px) {
+  .site-nav__links {
+    display: none;
+  }
+
+  .site-nav__login {
+    display: none;
+  }
+
+  .site-nav__burger {
+    display: flex;
+  }
+}
+
+.site-nav__cta-short {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .site-nav__cta-full {
+    display: none;
+  }
+  .site-nav__cta-short {
+    display: inline;
+  }
+}

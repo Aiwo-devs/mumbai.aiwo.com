@@ -1,0 +1,534 @@
+.comparison__scroll-hint {
+  display: none;
+}
+
+.comparison__scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 8px 24px 0;
+  margin: -8px -8px -24px 0;
+}
+
+.comparison__frame {
+  position: relative;
+  min-width: 820px;
+  /* Single shared square slot for all three product visuals — one variable, three
+     responsive tiers, so no column can individually enlarge/shrink its own image. */
+  --comparison-visual-size: 96px;
+}
+
+@media (max-width: 900px) {
+  .comparison__frame {
+    --comparison-visual-size: 80px;
+  }
+
+  .comparison__matrix [role='columnheader'].comparison__header-cell {
+    height: 138px;
+  }
+}
+
+/* Mobile-only sticky first column: "What you get" / feature labels stay pinned to the
+   left edge while only the three product columns scroll beneath them — otherwise the
+   feature label a value belongs to disappears off-screen while swiping. Fixed px
+   column tracks (not the desktop 25%/25%/25%/25%) so the sticky column has a real,
+   stable width to stick at, and each product column gets a comfortable minimum
+   (~200-230px, per Figma-adjacent product-comparison sizing) rather than being
+   squeezed to fit three at once — this is a swipe-to-compare layout, only ~1 product
+   column is meant to be visible at a time. Row heights stay in sync automatically:
+   this is still one CSS Grid, so every cell in a logical row shares that row's
+   track height with no extra work. */
+@media (max-width: 640px) {
+  .comparison__frame {
+    --comparison-visual-size: 64px;
+  }
+
+  /* Column 1 is a fixed px width, not a % of the frame — the frame's own
+     min-width (820px) means a percentage here (e.g. 44%) scales off that full
+     table width, not the actual phone viewport, so it swallows most of the
+     visible screen and leaves only a sliver of the first product column to
+     peek at. A fixed width keeps the label legible while reliably leaving
+     real, readable space for the next column to invite swiping. */
+  .comparison__matrix {
+    grid-template-columns: 200px repeat(3, minmax(200px, 1fr));
+  }
+
+  .comparison__matrix [role='columnheader'].comparison__label-col,
+  .comparison__matrix [role='rowheader'].comparison__label-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+
+  /* The header's column-1 cell is deliberately transparent on desktop ("open canvas"
+     — see .comparison__header-cell--feature) but a sticky element needs an opaque
+     background of its own, or the scrolling header cells behind it would show
+     through while stuck in place. */
+  .comparison__matrix [role='columnheader'].comparison__label-col {
+    background: var(--color-bg);
+  }
+
+  /* Gentle (not mandatory) snap so each swipe lands on a whole product column rather
+     than a half-scrolled one — "proximity" only snaps near a snap point, so normal
+     vertical page scrolling while a finger is mid-swipe is never fought or hijacked. */
+  .comparison__scroll {
+    scroll-snap-type: x proximity;
+  }
+
+  .comparison__matrix [role='columnheader'].comparison__header-cell:not(.comparison__label-col) {
+    scroll-snap-align: start;
+  }
+}
+
+.comparison__matrix {
+  position: relative;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  font-size: 14px;
+}
+
+.comparison__matrix [role='row'] {
+  display: contents;
+}
+
+.comparison__matrix [role='columnheader'],
+.comparison__matrix [role='cell'],
+.comparison__matrix [role='rowheader'] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+/* The reference design divides columns with a 1px hairline (confirmed via Figma
+   inspection: border-l/border-r, 1px, #ededed — identical to this codebase's
+   --color-divider token). Row wrappers use display: contents, so every cell is a
+   direct child of the grid in document order — :not(:last-child) can't isolate
+   "last column of a row" here. Excluding by class instead: the 4th (AIWO) column is
+   the only cell that should never get a right-hand divider. The header row
+   (role='columnheader') is also excluded — no vertical dividers between "What you
+   get" / "Routine health check" / "Smartwatch / health app" specifically in that
+   row. */
+.comparison__matrix [role='cell']:not(.comparison__aiwo-col),
+.comparison__matrix [role='rowheader']:not(.comparison__aiwo-col) {
+  border-right: 1px solid var(--color-divider);
+}
+
+/* Scoped with [role].comparison__label-col (not just .comparison__label-col alone) to
+   out-specify the shared base cell rule above (class+attribute selector) — a bare
+   single-class override silently loses and the label stays centered. */
+.comparison__matrix [role='columnheader'].comparison__label-col,
+.comparison__matrix [role='cell'].comparison__label-col,
+.comparison__matrix [role='rowheader'].comparison__label-col {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Left edge of the table — matches the same divider used between every other column
+   (border-right, above) so column 1 reads as bordered too, not just an open edge that
+   blends into the page background on white/unshaded rows. Scoped to [role='rowheader']
+   only (the data rows), not the header row, per the request that removed header-row
+   dividers. */
+.comparison__matrix [role='rowheader'].comparison__label-col {
+  border-left: 1px solid var(--color-divider);
+}
+
+.comparison__row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+/* Top-left / bottom-left of the table body's outer boundary — since the header no
+   longer has a filled background, "Biomarkers measured" (the first data row) is now
+   the visual top-left corner of the table, matching the same ~10px radius used at the
+   bottom-left (the last row) and around the AIWO column. border-top is added here
+   (rather than relying on the header cell's own border-bottom, which this column
+   doesn't have — see .comparison__header-cell--feature) so the radius curves a real
+   top+left border pair into a clean quarter-circle, instead of the background corner
+   clipping against a straight edge with no matching border to curve into. */
+.comparison__label-col--first {
+  border-top-left-radius: 10px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.comparison__label-col--last {
+  border-bottom-left-radius: 10px;
+}
+
+/* Explicit base row background (not left transparent) so the alternating rhythm
+   against the shaded rows below reads clearly rather than blending into the page.
+   Excludes the header row deliberately: the header is open canvas (matches the page
+   background), not a filled card — the data-row surface system starts only at the
+   first real comparison row ("Biomarkers measured"), never inside the header. The
+   AIWO column is unaffected either way since .comparison__aiwo-col (below) already
+   overrides it with the preferred-column tint at higher specificity. */
+.comparison__row:not(.comparison__row--header) > * {
+  background: var(--color-surface);
+}
+
+/* Fixed, explicit header height — sized once for the shared visual slot + label, never
+   derived from image intrinsic size/aspect ratio. Label comes first (primary
+   identifier), image second (supporting visual) — justify-content: flex-start
+   top-anchors that stack so every column's label sits on the exact same top line.
+   Tightened to the minimum that still fits the 96px visual slot without cropping. */
+.comparison__matrix [role='columnheader'].comparison__header-cell {
+  height: 154px;
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Column 1 ("What you get") has no product image, so top-anchoring its label alone
+   leaves the rest of the shared header height empty — unavoidable if every column is
+   to share one grid row height (required for the table to stay aligned). That's left
+   as open canvas like the rest of the header (no card fill) rather than framed with a
+   tint, since the header's whole surface system must match the page background — only
+   the AIWO column keeps a fill in the header, because AIWO's preferred-column tint
+   deliberately starts at the very top. */
+.comparison__matrix [role='columnheader'].comparison__label-col.comparison__header-cell {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* One shared square slot (--comparison-visual-size) for all three product visuals —
+   width/height, not max-width/max-height, so none can be individually enlarged or
+   shrunk relative to the others regardless of its own source aspect ratio. */
+.comparison__header-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--comparison-visual-size);
+  height: var(--comparison-visual-size);
+  flex-shrink: 0;
+}
+
+.comparison__header-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.comparison__header-label {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+/* The highlighted/recommended column keeps an italic treatment as its own
+   distinct styling — the other header labels stay upright. */
+.comparison__aiwo-col .comparison__header-label {
+  font-style: italic;
+}
+
+.comparison__label-col .comparison__header-label {
+  text-align: left;
+}
+
+.comparison__header-label--feature {
+  font-size: 22px;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+/* Compounded with .comparison__matrix [role='columnheader'] (not the bare class
+   alone) to out-specify the shared base cell rule's border-bottom — the same
+   specificity trap that has hit several other rules in this file. */
+.comparison__matrix [role='columnheader'].comparison__header-cell--feature {
+  border-bottom: none;
+}
+
+.comparison__row.comparison__row--shaded > * {
+  background: #f7f7f5;
+}
+
+
+/* Row-to-row differentiation for the AIWO column comes from background color
+   (alternating with .comparison__row--shaded below), not from stroke/border — a
+   darkened divider line was tried and reverted as visually worse. Compounded with
+   .comparison__matrix (rather than the bare class alone) so this reliably out-specifies
+   .comparison__row:not(.comparison__row--header) > * above — both are two-class
+   selectors, and this one needs to win regardless of source order, the same
+   specificity trap that has hit several other rules in this file. */
+.comparison__matrix .comparison__aiwo-col {
+  position: relative;
+  background: #f1f1ef;
+}
+
+.comparison__matrix .comparison__row--shaded .comparison__aiwo-col {
+  background: #e7e7e4;
+}
+
+/* Both top corners — AIWO must read as one continuous rounded column, not a shape that
+   only rounds where it happens to touch the outer table edge. Same logic applies to
+   .comparison__cta-cell's bottom-left/bottom-right below. */
+.comparison__aiwo-col--head {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Absolutely positioned so it never consumes document-flow height — it can't push the
+   highlighted column's label, image, or header height, and never widens the column. top: -8px
+   pokes it just above the header cell, landing inside .comparison__scroll's existing
+   8px top cushion (added earlier for exactly this kind of intentional overflow), so it
+   never gets clipped by the scroll container. Centered on the column rather than
+   matching the reference design's inline-after-title position, since an inline badge can't be
+   made absolute/flow-independent at the same time — this is the deliberate tradeoff. */
+.comparison__aiwo-badge {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--color-ink);
+  color: var(--color-text-on-dark);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.comparison__row--cta [role='cell'] {
+  border-bottom: none;
+  border-right: none;
+  min-height: auto;
+}
+
+/* Explicit column placement is required here: this CTA row has a single grid item
+   (only the AIWO column continues into a footer — the other three end at the last
+   feature row), and without an explicit column, auto-placement would drop this item
+   into column 1 instead of column 4. Padding-top is taller than a plain button inset
+   to leave visible room for the grain field to read above the button, echoing how
+   the reference design's grain extends up behind its "Billed yearly" row, not just the button. */
+.comparison__cta-cell {
+  position: relative;
+  grid-column: 4 / 5;
+  padding: 56px 24px 32px;
+  overflow: hidden;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* The reference design's recommended-plan CTA sits over a visible field of small ASCII/data
+   fragments (., :, +, x, -, =) at uneven local density — not a soft blurred texture or
+   a uniform repeating grid. Reproduced here as two layered generated pseudo-elements
+   (different glyphs, sizes, opacities, drift timing) so the field reads as ambient
+   noise rather than a single flat pattern — an explicitly allowed technique (no
+   canvas/WebGL/image/animation library), translated into AIWO's own graphite tone.
+   Generated content isn't part of the accessibility tree, so it's inherently
+   equivalent to aria-hidden without needing the attribute; user-select: none keeps it
+   from being selected as if it were real text. z-index: 0 keeps both layers beneath
+   the button (z-index: 1); pointer-events: none is a second guarantee neither
+   intercepts the click. */
+.comparison__cta-cell::before,
+.comparison__cta-cell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--color-ink);
+  pointer-events: none;
+  user-select: none;
+}
+
+.comparison__cta-cell::before {
+  content: '. + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x · - = . + : x';
+  font-size: 13px;
+  line-height: 1.7;
+  letter-spacing: 2px;
+  opacity: 0.14;
+  animation: comparison-grain-drift-a 11s ease-in-out infinite;
+}
+
+.comparison__cta-cell::after {
+  content: '× - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x · = - . : + x';
+  font-size: 10px;
+  line-height: 2.3;
+  letter-spacing: 4px;
+  opacity: 0.07;
+  animation: comparison-grain-drift-b 13s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comparison__cta-cell::before,
+  .comparison__cta-cell::after {
+    animation: none;
+  }
+}
+
+@keyframes comparison-grain-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.11;
+  }
+  50% {
+    transform: translate(3px, -3px);
+    opacity: 0.17;
+  }
+}
+
+@keyframes comparison-grain-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.05;
+  }
+  50% {
+    transform: translate(-2px, 2px);
+    opacity: 0.09;
+  }
+}
+
+/* 10px, matching the CTA button radius confirmed in the reference design's pricing
+   section (node 2649:15281 — both the "Subscribe" and "Get started" buttons use
+   rounded-[10px]) — the same radius the shared primary Button variant now uses. */
+.comparison__cta-cell .btn {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 48px;
+  border-radius: 10px;
+}
+
+.comparison__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.comparison__cell--yes {
+  color: var(--color-positive);
+}
+
+.comparison__check {
+  width: 24px;
+  height: 24px;
+}
+
+.comparison__cell--no {
+  color: var(--color-text-muted);
+}
+
+.comparison__minus {
+  width: 20px;
+  height: 20px;
+}
+
+.comparison__cell--emphasis {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.95em;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+}
+
+/* Comparison's label column sits at the far left of the matrix, so a center-anchored
+   tooltip bubble (the InfoTooltip default) has room to open either way here — no
+   edge-overflow risk at this column, unlike the narrow card layout this replaces. */
+.comparison__row-label .info-tooltip__bubble {
+  left: 0;
+  transform: translateY(-4px);
+}
+
+/* Since the feature column went sticky on mobile (~44% viewport width, ~140-190px in
+   the 320-430px range), the shared 220px-wide bubble anchored at left: 0 now overflows
+   past the .comparison__scroll container's own clipping (overflow-x/-y are both
+   constrained there) and gets visibly cut off. Narrower max-width + wrapping instead
+   of a fixed width keeps it fully inside the scroll viewport at every mobile width.
+
+   Opening direction also has to flip to upward (bottom, not top): each sticky row's
+   feature cell is `position: sticky; z-index: 2`, which makes it establish its own
+   stacking context. A bubble opening downward bleeds into the NEXT row's vertical
+   space, but that next row's sticky cell is later in DOM order at the same z-index,
+   so it paints on top and visually eats the left portion of the bubble underneath it.
+   Opening upward instead bleeds into the PREVIOUS row (or the sticky header for the
+   very first row) — earlier in DOM order at the same z-index — so this row's own
+   stacking context (bubble included) correctly paints on top of it instead. */
+@media (max-width: 640px) {
+  .comparison__row-label .info-tooltip__bubble {
+    width: max-content;
+    max-width: 170px;
+    top: auto;
+    bottom: calc(100% + 8px);
+  }
+}
+
+.comparison__row-label .info-tooltip__bubble--open {
+  transform: translateY(0);
+}
+
+.comparison__kicker {
+  margin-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .comparison__matrix {
+    font-size: 13.5px;
+  }
+
+  .comparison__matrix [role='columnheader'],
+  .comparison__matrix [role='cell'],
+  .comparison__matrix [role='rowheader'] {
+    padding: 16px;
+  }
+
+  .comparison__matrix [role='columnheader'].comparison__header-cell {
+    height: 118px;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .comparison__scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 14px;
+  }
+
+  .comparison__scroll-hint-arrow {
+    font-size: 12px;
+  }
+
+  .comparison__header-label--feature {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,198 @@
+/* .section--dark (the shared dark-surface utility, styles/layout.css) supplies
+   the background + base text color — every divider/text override below just
+   needs the matching on-dark token instead of the light-theme one. */
+.site-footer {
+  border-top: 1px solid var(--color-border-on-dark);
+}
+
+.site-footer__watermark {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.32);
+  border-bottom: 1px solid var(--color-border-on-dark);
+}
+
+.site-footer__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding-top: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border-on-dark);
+}
+
+.site-footer__logo {
+  height: 26px;
+  width: auto;
+  margin-bottom: 10px;
+}
+
+.site-footer__tagline {
+  font-size: 14px;
+  max-width: 260px;
+  color: var(--color-text-on-dark-muted);
+}
+
+.site-footer__trust {
+  display: flex;
+  gap: 32px;
+}
+
+.site-footer__trust-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--color-text-on-dark-secondary);
+}
+
+.site-footer__trust-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-on-dark-muted);
+}
+
+.site-footer__nav {
+  display: grid;
+  /* Explore + Contact only — the 3rd "Legal" column (Privacy Policy / Terms
+     of Service) was removed since neither page actually exists yet; no
+     fabricated links. */
+  grid-template-columns: repeat(2, 1fr);
+  border-bottom: 1px solid var(--color-border-on-dark);
+}
+
+.site-footer__nav-col {
+  padding: 20px 24px 20px 0;
+  border-left: 1px solid var(--color-border-on-dark);
+  padding-left: 24px;
+}
+
+.site-footer__nav-col:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+.site-footer__nav-col h3 {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-on-dark);
+  margin-bottom: 10px;
+}
+
+.site-footer__nav-col ul {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-footer__nav-col a,
+.site-footer__nav-col li {
+  font-size: 13.5px;
+  color: var(--color-text-on-dark-secondary);
+  padding: 5px 0;
+}
+
+.site-footer__nav-col a {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.site-footer__nav-col a:hover {
+  color: var(--color-text-on-dark);
+}
+
+.site-footer__legal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 13px;
+  color: var(--color-text-on-dark-muted);
+}
+
+/* Deliberately understated — same muted color and weight as the surrounding
+   copyright line, not a highlighted CTA. Real, working link to the parent
+   site's actual Privacy Policy / Terms of Service, not a fabricated page. */
+.site-footer__fineprint-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.site-footer__fineprint-link:hover {
+  color: var(--color-text-on-dark);
+}
+
+.site-footer__social {
+  display: flex;
+  gap: 20px;
+}
+
+.site-footer__social a {
+  color: var(--color-text-on-dark-muted);
+  text-decoration: none;
+}
+
+.site-footer__social a:hover {
+  color: var(--color-text-on-dark);
+}
+
+/* Compact mobile structure — brand row / trust items side by side / "Explore"
+   as its own 2-column link grid / Contact stacked full-width underneath —
+   rather than each desktop column simply stacked in sequence, which is what
+   made the previous mobile footer several screens tall. Only 2 nav columns
+   exist now (Explore, Contact) — the 3rd "Legal" column (Privacy Policy /
+   Terms of Service) was removed since neither page exists yet. */
+@media (max-width: 560px) {
+  .site-footer__top {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    gap: 16px;
+  }
+
+  .site-footer__trust {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 16px;
+  }
+
+  /* "Explore" spans both columns with its own internal 2×2 link grid. */
+  .site-footer__nav-col:first-child {
+    grid-column: 1 / -1;
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .site-footer__nav-col:first-child ul {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 16px;
+  }
+
+  /* Contact stacks full-width underneath, not side by side with anything. */
+  .site-footer__nav-col:nth-child(2) {
+    grid-column: 1 / -1;
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--color-border-on-dark);
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .site-footer__legal {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+}

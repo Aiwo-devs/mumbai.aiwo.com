@@ -1,0 +1,236 @@
+.catalog__group {
+  margin-top: 40px;
+}
+
+.catalog__group:first-of-type {
+  margin-top: 0;
+}
+
+.catalog__group-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+/* Everything below is Comparison.css's scroll/frame/matrix/row/divider system,
+   reshaped for a 5-column service directory (name/venue/duration/price/status)
+   instead of a 4-column feature comparison — same tokens, same mobile sticky-column
+   + scroll-snap behaviour, no "highlighted column" concept since there is no single
+   recommended column here. */
+.catalog__scroll-hint {
+  display: none;
+}
+
+.catalog__scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 8px 24px 0;
+  margin: -8px -8px -24px 0;
+}
+
+.catalog__frame {
+  position: relative;
+  min-width: 720px;
+}
+
+.catalog__matrix {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+}
+
+/* Optional 6th column — only added when at least one row supplies a row-level
+   outcome CTA (IV Therapy). Every other catalogue keeps the 5-column layout
+   above, unchanged. */
+.catalog__matrix--with-cta {
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.2fr;
+}
+
+/* The shared secondary button's default padding (12px 24px, full pill) is
+   sized for open page contexts — inside this narrow "Book" table cell it
+   overflowed the row height and bled into the neighbouring column. Scoped
+   down to fit the cell it actually renders in, at the same specificity
+   needed to beat the shared variant+size rule. */
+.catalog__cell--cta .btn--secondary.btn--md {
+  padding: 8px 16px;
+}
+
+.catalog__lead-cta {
+  margin-top: 20px;
+}
+
+.catalog__matrix [role='row'] {
+  display: contents;
+}
+
+.catalog__matrix [role='columnheader'],
+.catalog__matrix [role='cell'],
+.catalog__matrix [role='rowheader'] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.catalog__matrix [role='cell']:not(:last-child),
+.catalog__matrix [role='rowheader']:not(:last-child) {
+  border-right: 1px solid var(--color-divider);
+}
+
+.catalog__matrix [role='columnheader'] {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: var(--color-surface-subtle);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.catalog__matrix [role='columnheader'].catalog__label-col,
+.catalog__matrix [role='cell'].catalog__label-col,
+.catalog__matrix [role='rowheader'].catalog__label-col {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2px;
+  text-align: left;
+}
+
+.catalog__row-label {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.catalog__row-description {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.catalog__matrix [role='columnheader'].catalog__cell--price,
+.catalog__matrix [role='cell'].catalog__cell--price {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.catalog__matrix [role='cell'].catalog__cell--price {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.catalog__row:not(.catalog__row--header) > * {
+  background: var(--color-surface);
+}
+
+.catalog__row.catalog__row--shaded > * {
+  background: #f7f7f5;
+}
+
+.catalog__row [role='rowheader'].catalog__label-col--first {
+  border-top: none;
+}
+
+.catalog__row [role='rowheader'].catalog__label-col--last {
+  border-bottom: none;
+}
+
+/* Small rounded-pill badge — same typography/shape as Comparison's
+   .comparison__aiwo-badge ("Most complete"), reused inline for a live/scaling
+   status label instead of floating above a column. */
+.catalog__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.catalog__badge--live {
+  background: var(--color-ink);
+  color: var(--color-text-on-dark);
+}
+
+/* Mobile-only sticky first column, identical mechanism to Comparison.css. */
+@media (max-width: 640px) {
+  /* Column 1 is a fixed px width, not a % of the frame — the frame's own
+     min-width (720px) means a percentage here (e.g. 40%) scales off that full
+     table width, not the actual phone viewport, so it ends up swallowing most
+     of the visible screen and leaving only a sliver of column 2 to peek at.
+     A fixed width keeps column 1 legible while reliably leaving real, readable
+     space for the next column to invite swiping. */
+  .catalog__matrix {
+    grid-template-columns: 200px repeat(4, minmax(130px, 1fr));
+  }
+
+  .catalog__matrix--with-cta {
+    grid-template-columns: 200px repeat(5, minmax(130px, 1fr));
+  }
+
+  .catalog__matrix [role='columnheader'].catalog__label-col,
+  .catalog__matrix [role='rowheader'].catalog__label-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+
+  /* The sticky column needs its own opaque background so scrolling cells behind it
+     don't show through while stuck — but only the header cell gets a flat override;
+     row cells keep the row's own shaded/unshaded background (see .catalog__row--shaded)
+     so the alternating pattern doesn't break in the one column that stays visible. */
+  .catalog__matrix [role='columnheader'].catalog__label-col {
+    background: var(--color-bg);
+  }
+
+  .catalog__scroll {
+    scroll-snap-type: x proximity;
+  }
+
+  .catalog__matrix [role='columnheader']:not(.catalog__label-col) {
+    scroll-snap-align: start;
+  }
+
+  .catalog__scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 10px;
+  }
+
+  .catalog__matrix [role='columnheader'],
+  .catalog__matrix [role='cell'],
+  .catalog__matrix [role='rowheader'] {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  /* The "Book" column narrows to a 130px minimum here — tighten the CTA
+     button further so it stays comfortably inside the cell instead of
+     pushing against (or past) its edges. */
+  .catalog__cell--cta .btn--secondary.btn--md {
+    padding: 6px 12px;
+    font-size: 12.5px;
+  }
+}

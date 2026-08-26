@@ -1,0 +1,37 @@
+/* Derived from Pricing.css's .pricing-card__trust-row — same check icon size/color,
+   divider color token and border treatment, restacked vertically (flex-direction:
+   column instead of wrapped row) since each item here is a lead phrase + full
+   sentence, not a short chip label. */
+.point-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.point-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 0;
+  border-top: 1px solid var(--color-divider);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.point-list__item strong {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.point-list__icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--color-positive);
+}
+
+.point-list__icon--negative {
+  color: var(--color-text-muted);
+}

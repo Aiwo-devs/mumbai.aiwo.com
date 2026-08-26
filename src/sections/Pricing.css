@@ -1,0 +1,184 @@
+.pricing__intro {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 56px;
+}
+
+.pricing__intro .eyebrow {
+  justify-content: center;
+}
+
+.pricing__intro .section-heading,
+.pricing__intro .section-body {
+  max-width: 620px;
+}
+
+.pricing__card-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.pricing-card {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.pricing-card__price {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-tighter);
+}
+
+.pricing-card__currency {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.6em;
+  font-weight: 500;
+  letter-spacing: normal;
+  margin-right: 0.15em;
+  vertical-align: 0.12em;
+}
+
+.pricing-card__price-note {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  margin-bottom: 32px;
+}
+
+.pricing-card__included {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border-top: 1px solid var(--color-divider);
+  margin-bottom: 32px;
+}
+
+.pricing-card__included li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 4px;
+  font-size: 15px;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.pricing-card__included li:nth-child(even) {
+  background: var(--color-surface);
+}
+
+.pricing-card__check {
+  flex-shrink: 0;
+  color: var(--color-positive);
+}
+
+.pricing-card__button {
+  width: 100%;
+}
+
+/* CTA rule: price/duration/reassurance is a separate line directly below the
+   button, never concatenated into the button label. */
+.pricing-card__cta-subline {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.pricing-card__trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 20px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.pricing-card__trust-row li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.pricing-card__trust-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-positive);
+}
+
+.pricing__tier-chooser {
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+/* Non-numeric price (e.g. "At consultation") — same section-heading scale used
+   elsewhere for headline-weight text, not the 56px numeral treatment, since there's
+   no amount to give visual weight to. */
+.pricing-card__price--text {
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+}
+
+/* Additional priced tiers alongside the primary price (e.g. Posture Screening's
+   Assessment + Egoscue cross-references) — reuses .pricing-card__included's exact
+   divider/row pattern rather than a new list design. */
+.pricing-card__tiers {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border-top: 1px solid var(--color-divider);
+  margin-top: 24px;
+}
+
+.pricing-card__tiers li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 14px 4px;
+  font-size: 15px;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.pricing-card__tier-name {
+  font-weight: 500;
+}
+
+.pricing-card__tier-price {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.pricing-card__tier-note {
+  flex-basis: 100%;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 480px) {
+  .pricing-card {
+    padding: 32px 22px;
+  }
+
+  .pricing-card__price {
+    font-size: 44px;
+  }
+}

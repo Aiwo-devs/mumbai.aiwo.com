@@ -1,0 +1,24 @@
+/* A bordered, radius-lg contained-photo treatment for a single photograph.
+   Neutral muted fill + centered dev label stand in for the image itself; no
+   real photography is faked. */
+.section-image {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-subtle);
+  overflow: hidden;
+}
+
+.section-image__label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 8px 16px;
+  text-align: center;
+}

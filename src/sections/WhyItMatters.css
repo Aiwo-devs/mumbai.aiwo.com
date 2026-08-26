@@ -1,0 +1,22 @@
+.why-it-matters__head {
+  max-width: 780px;
+  margin-bottom: 40px;
+}
+
+.why-it-matters__body {
+  margin-top: 16px;
+  max-width: 720px;
+}
+
+.why-it-matters__cta {
+  margin-top: 24px;
+}
+
+.why-it-matters__image {
+  max-width: 720px;
+  margin-top: 32px;
+}
+
+.why-it-matters__image .section-image {
+  height: 100%;
+}

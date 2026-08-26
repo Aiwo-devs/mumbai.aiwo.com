@@ -1,0 +1,28 @@
+.corner-tick {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  color: var(--color-border-strong);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.corner-tick--tl {
+  top: -5.5px;
+  left: -5.5px;
+}
+
+.corner-tick--tr {
+  top: -5.5px;
+  right: -5.5px;
+}
+
+.corner-tick--bl {
+  bottom: -5.5px;
+  left: -5.5px;
+}
+
+.corner-tick--br {
+  bottom: -5.5px;
+  right: -5.5px;
+}

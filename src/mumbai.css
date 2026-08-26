@@ -1,0 +1,161 @@
+/* Mumbai-specific additive styles only — composed entirely from the existing
+   design tokens/typography. Kept separate from styles/tokens.css, base.css and
+   layout.css so those three files stay a clean, minimal token/base layer. */
+
+.section-disclaimer {
+  padding: 32px 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+.section-disclaimer__text {
+  font-size: 13px;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--color-text-muted);
+  max-width: 820px;
+}
+
+/* Accessibility: skip-to-content link — visually hidden until keyboard-focused,
+   then drops into view above everything else. Reuses existing color/radius
+   tokens only. */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-ink);
+  color: var(--color-text-on-dark);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(-150%);
+  transition: transform 0.15s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Back-to-top button — fixed circular action, appears after the visitor has
+   scrolled past roughly one viewport. No existing precedent elsewhere on the
+   site (every other page is short enough not to need one); composed entirely
+   from existing tokens (ink/on-dark, radius-pill, shadow-float) rather than a
+   new visual language. Sits above StickyCta's mobile bar (see 720px override). */
+.back-to-top {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-ink);
+  color: var(--color-text-on-dark);
+  box-shadow: var(--shadow-float);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.back-to-top--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top__icon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 720px) {
+  .back-to-top {
+    bottom: 88px;
+  }
+}
+
+/* Hero "deck" line — an italic secondary framing line directly under the H1,
+   above the subhead. Same size/color/max-width as .hero__subhead (Hero.css),
+   just italic and slightly tighter margin since the subhead follows right
+   after it — composition, not a new type scale. */
+.hero__deck {
+  margin-top: 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  max-width: 620px;
+}
+
+/* Homepage hero segmentation chips — reuses .hero__badge's exact pill
+   treatment (padding/radius/border/font), just as a clickable link with a
+   hover state borrowed from the existing secondary-button hover color. */
+.hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.hero__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.hero__chip:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+/* Compact policy notes — plain list near the Footer, deliberately NOT the
+   interactive category-sidebar Faq component (that's reserved for the one
+   real FAQ) so the homepage doesn't carry two large accordion systems. */
+.policy-list {
+  counter-reset: policy;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-list li {
+  counter-increment: policy;
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.policy-list li::before {
+  content: counter(policy) '.';
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  color: var(--color-text-tertiary);
+}
+
+.policy-list-wrap {
+  padding: 40px 0;
+  border-top: 1px solid var(--color-divider);
+  max-width: 720px;
+}
+
+.policy-list-wrap .eyebrow {
+  margin-bottom: 16px;
+}

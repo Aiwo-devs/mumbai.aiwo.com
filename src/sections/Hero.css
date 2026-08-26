@@ -1,0 +1,327 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  /* Matches every other section's desktop rhythm (.section's --section-pad-y)
+     even though Hero can't use the shared .section class itself (bespoke
+     background layers + trust strip). padding-bottom stays 0 on purpose —
+     .hero__trust closes the section with its own border/padding treatment. */
+  padding-top: var(--section-pad-y);
+  padding-bottom: 0;
+  background: var(--color-bg);
+}
+
+/* Hero background: an independent decorative layer, not something that can affect
+   Hero sizing/layout — .hero__field is absolutely positioned and every child inside
+   it is pointer-events: none, so it can never contribute to scrollWidth or intercept
+   clicks meant for the real content in .hero__inner (z-index: 1, above this layer). */
+.hero__field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* A fine construction mesh, not a handful of large obvious cells — the previous
+   102px grid plus five nested rounded-rectangle "rings" read as big repeated boxes
+   rather than subtle technical infrastructure. This is deliberately finer (56px) and
+   lower-contrast, fading out both toward the bottom of the section and radially
+   behind the headline/report card so the pattern frames the content rather than
+   competing with it. */
+.hero__grid {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+      to right,
+      var(--color-border) 0,
+      var(--color-border) 1px,
+      transparent 1px,
+      transparent 56px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--color-border) 0,
+      var(--color-border) 1px,
+      transparent 1px,
+      transparent 56px
+    );
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+  opacity: 0.55;
+}
+
+/* Sparse micro-detail — small isolated dots, not a dense repeating texture. Large
+   pitch (120px) keeps them scattered rather than forming a visible secondary grid. */
+.hero__grain {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--color-border-strong) 1px, transparent 1px);
+  background-size: 120px 120px;
+  background-position: 28px 28px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+  opacity: 0.4;
+}
+
+/* Painted (not masked) center clearing — a soft patch of the section's own
+   background color sits on top of the grid/grain layers so the pattern visibly
+   frames the headline/report card instead of competing with it, without relying on
+   mask-composite (spottier cross-browser support than a plain background paint). */
+.hero__clear {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 58% 52% at 50% 40%, var(--color-bg) 0%, var(--color-bg) 45%, transparent 75%);
+}
+
+/* Small crosshair marks (the same glyph CornerTicks uses elsewhere) scattered left
+   and right of the content column — never centered behind the headline. */
+.hero__mark {
+  position: absolute;
+}
+
+.hero__mark-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-border-strong);
+  opacity: 0.7;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 48px;
+}
+
+/* The hero uses its own rounded badge pill — confirmed identical on both the
+   desktop and mobile Figma frames — distinct from the "// label" eyebrow
+   pattern used by every other section. No trailing chevron: unlike the
+   reference's promo badge, this is a plain descriptive label, not a link. */
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.hero__badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: var(--color-text-on-dark);
+}
+
+.hero__badge-icon svg {
+  width: 10px;
+  height: 10px;
+}
+
+.hero__headline {
+  margin-top: 16px;
+  font-size: clamp(36px, 5.2vw, 58px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-tighter);
+  color: var(--color-text);
+  max-width: 760px;
+}
+
+/* De-emphasized headline clause — color only, same weight as the rest of the
+   headline. --color-text-secondary is 72% ink, not a washed-out grey —
+   clearly legible at this size, just visibly quieter than full ink. */
+.hero__headline-soft {
+  color: var(--color-text-secondary);
+}
+
+.hero__subhead {
+  margin-top: 24px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 620px;
+}
+
+.hero__subhead strong {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.hero__cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.hero__cta-context {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.hero__visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+  width: 100%;
+}
+
+.hero__mockup {
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-float);
+}
+
+.hero__trust {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  /* Every hero across every page passes exactly 5 trust chips — a real, fixed
+     count, not an arbitrary list — so this is sized for 5 columns in one row
+     rather than a generic repeat(4, ...) that strands the 5th item on its own
+     orphaned row with no divider. */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  min-height: 72px;
+  border-top: 1px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.hero__trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  padding: 0 20px;
+  border-left: 1px solid var(--color-divider);
+}
+
+.hero__trust-item span {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.hero__trust-item:first-child {
+  border-left: none;
+}
+
+.hero__trust-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 960px) {
+  .hero__trust {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 0;
+    /* padding-top/-bottom only — a "padding: 24px 0" shorthand here would also set
+       padding-left/-right to 0, silently overriding .container's horizontal gutter
+       (both are single-class selectors; this rule just happens to be declared later)
+       and pulling the whole strip flush to the viewport edge. */
+    padding-top: 18px;
+    padding-bottom: 18px;
+    gap: 16px 0;
+  }
+
+  .hero__trust-item:nth-child(2n + 1) {
+    border-left: none;
+  }
+
+  /* Only the 2nd column needs extra left inset (clearance from its own divider) —
+     applying this to every item unconditionally (as before) also pushed the 1st
+     column's items 16px further right than the container's own gutter, so they no
+     longer lined up with the headline/CTA/report card above them. */
+  .hero__trust-item:nth-child(2n) {
+    padding-left: 16px;
+  }
+
+  /* The trailing 5th item stays in column 1, same width as every other card
+     above it, with its own right-side divider at the same column boundary —
+     not stretched across the full row, which pushed its border out past
+     where every other divider on this row sits. Targeted by position
+     (:nth-child(5), always the 5th trust item) rather than :last-child —
+     CornerTicks renders its own SVG elements as later siblings inside
+     .hero__trust, so the 5th item is never actually the DOM's last child. */
+  .hero__trust-item:nth-child(5) {
+    border-right: 1px solid var(--color-divider);
+  }
+}
+
+@media (max-width: 560px) {
+  .hero {
+    padding-top: 64px;
+  }
+
+  .hero__cta-row .btn {
+    width: 100%;
+  }
+
+  /* Compact 2×2 grid, not 4 full-width stacked rows — long labels like
+     "NABL-accredited partner laboratory" wrap to a second line (min-width: 0 above
+     is what lets that wrapping actually happen instead of overflowing) rather than
+     forcing every row to full width. */
+  .hero__trust {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 0;
+    /* No outer top/bottom padding and no row gap — each row's own vertical
+       padding (below) provides the spacing instead, so a divider line always
+       sits exactly on the boundary between two equally-padded rows. */
+    padding-top: 0;
+    padding-bottom: 0;
+    gap: 0;
+  }
+
+  /* Padding lives on the row itself, split evenly top/bottom, instead of as an
+     outer row gap plus a separate post-divider push — that always split the
+     space around a line unevenly. Centered alignment (not flex-start) keeps a
+     wrapped 2-line label vertically centered against its single-line neighbour,
+     matching the wireframe reference. */
+  .hero__trust-item {
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0 14px 14px !important;
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+
+  .hero__trust-item:nth-child(2n + 1) {
+    border-left: none !important;
+    padding-left: 0 !important;
+  }
+
+  .hero__trust-item:nth-child(n + 3) {
+    border-top: 1px solid var(--color-divider);
+  }
+
+  /* Same as the 960px tier above — column 1 width, matching divider position,
+     not a full-row span. Targeted by position, not :last-child — see the
+     960px tier's comment for why. */
+  .hero__trust-item:nth-child(5) {
+    border-right: 1px solid var(--color-divider);
+  }
+
+  .hero__trust-icon {
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+  }
+}

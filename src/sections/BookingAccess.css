@@ -1,0 +1,104 @@
+/* Derived from Intake.css's .intake__layout / .intake-card panel treatment —
+   same 2-column grid, same card surface/border/radius/shadow — with the photo
+   column and form removed since this section has neither. */
+.booking-access__layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 32px 64px;
+  align-items: start;
+}
+
+.booking-access__intro {
+  max-width: 440px;
+}
+
+.booking-access__body {
+  margin-top: 16px;
+}
+
+.booking-access__cta {
+  margin-top: 24px;
+}
+
+/* CTA rule: price/duration/reassurance is a separate line directly below the
+   button, never concatenated into the button label. */
+.booking-access__cta-subline {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.booking-access-card {
+  position: relative;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-card);
+}
+
+.booking-access__methods {
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-access__method {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.booking-access__method:first-child {
+  padding-top: 0;
+}
+
+.booking-access__method:last-child {
+  border-bottom: none;
+}
+
+.booking-access__method-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.booking-access__method-body {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.booking-access__note {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-divider);
+  padding-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .booking-access__layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .booking-access__intro {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-access-card {
+    padding: 24px 20px;
+  }
+}
+
+/* Same reservation as Intake.css — the bottom sticky CTA bar is visible on this
+   section and must never overlap its content. */
+@media (max-width: 720px) {
+  .section.booking-access {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}

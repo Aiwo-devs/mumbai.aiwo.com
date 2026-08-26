@@ -1,0 +1,83 @@
+.info-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.info-tooltip__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.info-tooltip__trigger:hover,
+.info-tooltip__trigger:focus-visible {
+  color: var(--color-text);
+}
+
+.info-tooltip__trigger:focus {
+  outline: none;
+}
+
+.info-tooltip__trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-emphasis-tint-strong);
+  border-radius: 50%;
+}
+
+.info-tooltip__icon {
+  width: 15px;
+  height: 15px;
+}
+
+.info-tooltip__bubble {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  width: 220px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  color: var(--color-text-on-dark);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
+  box-shadow: var(--shadow-float);
+}
+
+.info-tooltip__bubble--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 640px) {
+  .info-tooltip__bubble {
+    /* Triggers live in the comparison table's sticky left column, which is pinned
+       near the viewport's left edge — anchor the bubble to open rightward so it
+       always has room, instead of hanging left off the edge of the screen. */
+    left: -4px;
+    transform: translateY(-4px);
+    width: max-content;
+    max-width: min(220px, calc(100vw - 48px));
+  }
+
+  .info-tooltip__bubble--open {
+    transform: translateY(0);
+  }
+}
