@@ -44,7 +44,7 @@ export function BookingSummary({ state, dispatch }: BookingSummaryProps) {
 
     try {
       const { firstName, lastName, email, phone: rawPhone, gender } = state.patientDetails
-      
+
       // Ensure phone number starts with +91
       let phone = (rawPhone || '').trim()
       if (phone && !phone.startsWith('+91')) {
@@ -132,7 +132,7 @@ export function BookingSummary({ state, dispatch }: BookingSummaryProps) {
         appointment_type: 1, // 1 for Walk_in or specific enum
         consustant_type: state.isOnline ? 2 : 1, // 1 for walk_in, 2 for online
         branch_id: BRANCH_ID,
-        redirect_url: "https://devclinic.aiwohealth.com", // window.location.origin + getServiceRedirectUrl(state.serviceName),
+        redirect_url: window.location.origin + getServiceRedirectUrl(state.serviceName),
         ...(state.isOnline ? { appointment_type_for: "video", meeting_provider: "google_meet" } : {})
       }
 
