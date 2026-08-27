@@ -1,6 +1,10 @@
-import { ServicePage } from '../ServicePage'
-import { vo2Max } from '../data/services/vo2Max'
+import { ServiceSiteLayout } from '../service-site/ServiceSiteLayout'
+import VO2MaxPage from '../service-site/pages/VO2MaxPage'
 
 export default function Vo2MaxRoute() {
-  return <ServicePage data={vo2Max} />
+  return (
+    <ServiceSiteLayout>
+      <VO2MaxPage />
+    </ServiceSiteLayout>
+  )
 }

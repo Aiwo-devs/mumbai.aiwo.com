@@ -1,6 +1,10 @@
-import { ServicePage } from '../ServicePage'
-import { postureScreening } from '../data/services/postureScreening'
+import { ServiceSiteLayout } from '../service-site/ServiceSiteLayout'
+import PostureScreeningPage from '../service-site/pages/PostureScreeningPage'
 
 export default function PostureScreeningRoute() {
-  return <ServicePage data={postureScreening} />
+  return (
+    <ServiceSiteLayout>
+      <PostureScreeningPage />
+    </ServiceSiteLayout>
+  )
 }

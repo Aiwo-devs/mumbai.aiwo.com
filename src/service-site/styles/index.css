@@ -1,0 +1,330 @@
+/* Ported service-page styling — Tailwind v4 + a scoped theme-token layer,
+   deliberately isolated from Mumbai's own plain-CSS token system
+   (src/styles/tokens.css). Several token names collide exactly (--font-sans,
+   --font-mono, --radius-sm/md/lg/xl), so the raw values below are scoped
+   under .service-site instead of :root — every ported page is wrapped in a
+   .service-site root element (see ServiceSiteLayout) so inheritance still
+   resolves correctly for anything nested inside it, without ever touching
+   the values Mumbai's own Homepage/components read from the real :root. */
+/* theme + utilities only — NOT tailwindcss/preflight.css. Preflight resets
+   raw elements (h1, p, button, ul, ...) globally by design; importing it here
+   would alter the Homepage's own heading/button/list rendering everywhere,
+   not just inside .service-site. The rules below restore it, scoped
+   correctly, instead.
+
+   Tailwind's UTILITIES are imported standalone (theme.css + utilities.css)
+   rather than via the `@import "tailwindcss"` shorthand, and are therefore
+   left UNLAYERED — deliberately (no `layer(theme)`/`layer(utilities)`).
+   Mumbai's own src/styles/base.css is itself plain, unlayered CSS with
+   bare-element rules — `a { color: inherit }`,
+   `body { color: var(--color-text) }`, `h1..h6, p { margin: 0 }`, etc. Per
+   the CSS cascade spec, ANY unlayered rule beats ANY layered rule regardless
+   of specificity — so if the utilities were emitted into `@layer utilities`
+   (as the shorthand `@import "tailwindcss"` does), base.css's bare
+   `a{color:inherit}` would silently win over every `text-white`/`text-black`
+   utility applied to a link or an asChild Button (confirmed: computed color
+   matched the inherited value, not the utility, on every affected element).
+   Keeping utilities unlayered, their single-class selectors (0-1-0) outrank
+   Mumbai's bare element selectors (0-0-1) on plain specificity — no Homepage
+   risk since Homepage never has a .service-site ancestor and doesn't use
+   these class names.
+
+   The scoped preflight/base reset far below, by contrast, IS wrapped in
+   `@layer base {}`. That is the crux of the spacing fix: Tailwind emits
+   `space-y-*`/`space-x-*`/`divide-*` as zero-specificity, unlayered
+   `:where(... > :not(:last-child)){margin/border}` rules. The reset zeroes
+   margin/border too and (before this fix) was also unlayered — a 0-0-0 tie
+   the reset won purely on source order, collapsing every space/divide gap to
+   0. Layering the reset makes it lose to ALL unlayered utilities (unlayered >
+   layered), restoring space/divide spacing, while the reset still beats the
+   browser's UA defaults (layered author > UA) so headings/lists/etc. keep
+   their margin:0 reset. */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Was :root in the source project — scoped here since this is where the
+   collisions with Mumbai's own tokens actually happen. */
+.service-site {
+  --button-outline: rgba(0, 0, 0, 0.1);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
+
+  --background: 40 33% 98%;
+  --foreground: 224 45% 15%;
+  --border: 224 20% 90%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 224 45% 15%;
+  --card-border: 224 20% 90%;
+
+  --sidebar: 40 33% 98%;
+  --sidebar-foreground: 224 45% 15%;
+  --sidebar-border: 224 20% 90%;
+  --sidebar-primary: 224 45% 25%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 224 20% 90%;
+  --sidebar-accent-foreground: 224 45% 15%;
+  --sidebar-ring: 224 45% 25%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 45% 15%;
+  --popover-border: 224 20% 90%;
+
+  --primary: 224 45% 25%;
+  --primary-foreground: 40 33% 98%;
+
+  --secondary: 40 33% 92%;
+  --secondary-foreground: 224 45% 15%;
+
+  --muted: 224 20% 95%;
+  --muted-foreground: 224 20% 40%;
+
+  --accent: 30 70% 60%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --input: 224 20% 85%;
+  --ring: 224 45% 25%;
+
+  --app-font-sans: 'Plus Jakarta Sans', sans-serif;
+  --app-font-mono: 'Space Mono', monospace;
+  --radius: 0.75rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --primary-border: hsl(var(--primary));
+  --secondary-border: hsl(var(--secondary));
+  --muted-border: hsl(var(--muted));
+  --accent-border: hsl(var(--accent));
+  --destructive-border: hsl(var(--destructive));
+}
+
+.service-site.dark {
+  --background: 224 45% 8%;
+  --foreground: 40 33% 98%;
+  --border: 224 20% 20%;
+
+  --card: 224 45% 12%;
+  --card-foreground: 40 33% 98%;
+  --card-border: 224 20% 20%;
+
+  --primary: 40 33% 98%;
+  --primary-foreground: 224 45% 8%;
+
+  --secondary: 224 45% 15%;
+  --secondary-foreground: 40 33% 98%;
+
+  --muted: 224 45% 15%;
+  --muted-foreground: 224 20% 70%;
+
+  --accent: 30 70% 60%;
+  --accent-foreground: 224 45% 8%;
+
+  --input: 224 20% 20%;
+  --ring: 40 33% 98%;
+}
+
+/* tailwindcss/preflight.css, scoped to .service-site instead of the real
+   root/body/bare-element selectors it normally resets. Skipping preflight
+   entirely (rather than scoping it) was tried first and was wrong: without
+   it, headings/paragraphs keep their browser default margins on top of the
+   source's own Tailwind spacing utilities, and img/svg lose their
+   display:block reset — both directly explained visible spacing and image
+   sizing/position differences against the source page. Selectors and values
+   below are copied verbatim from node_modules/tailwindcss/preflight.css,
+   each scoped under .service-site — via `:where(.service-site) X`, NOT
+   plain `.service-site X`. This whole block now lives in `@layer base {}`
+   (see the top note), which is what guarantees it loses to Tailwind's
+   unlayered utilities — including the zero-specificity `space-*`/`divide-*`
+   `:where(... > :not(:last-child))` rules that a same-specificity unlayered
+   reset used to beat on source order, collapsing every gap to 0. `:where()`
+   is still used to keep each rule's specificity minimal (e.g. `a` is 0-0-1,
+   matching Mumbai's bare `a{color:inherit}`) so this reset never over-
+   specifies and fights Mumbai's own unlayered bare-element rules. A first
+   pass used plain `.service-site X` (adding the .service-site class's own
+   specificity on top) and that regressed further: `.service-site *` came
+   out equally specific to Tailwind's own padding/margin utilities, and
+   being later in this same file, silently won and stripped spacing
+   sitewide across the ported pages (e.g. the header logo's own padding). */
+@layer base {
+:where(.service-site, .service-site *, .service-site ::after, .service-site ::before, .service-site ::backdrop) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+:where(.service-site) hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+:where(.service-site) abbr:where([title]) {
+  text-decoration: underline dotted;
+}
+:where(.service-site) h1,
+:where(.service-site) h2,
+:where(.service-site) h3,
+:where(.service-site) h4,
+:where(.service-site) h5,
+:where(.service-site) h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+:where(.service-site) a {
+  color: inherit;
+  text-decoration: inherit;
+}
+:where(.service-site) b,
+:where(.service-site) strong {
+  font-weight: bolder;
+}
+:where(.service-site) code,
+:where(.service-site) kbd,
+:where(.service-site) samp,
+:where(.service-site) pre {
+  font-family: var(--font-mono);
+  font-size: 1em;
+}
+:where(.service-site) small {
+  font-size: 80%;
+}
+:where(.service-site) sub,
+:where(.service-site) sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+:where(.service-site) sub {
+  bottom: -0.25em;
+}
+:where(.service-site) sup {
+  top: -0.5em;
+}
+:where(.service-site) table {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+:where(.service-site) summary {
+  display: list-item;
+}
+:where(.service-site) ol,
+:where(.service-site) ul,
+:where(.service-site) menu {
+  list-style: none;
+}
+:where(.service-site) img,
+:where(.service-site) svg,
+:where(.service-site) video,
+:where(.service-site) canvas,
+:where(.service-site) audio,
+:where(.service-site) iframe,
+:where(.service-site) embed,
+:where(.service-site) object {
+  display: block;
+  vertical-align: middle;
+}
+:where(.service-site) img,
+:where(.service-site) video {
+  max-width: 100%;
+  height: auto;
+}
+:where(.service-site) button,
+:where(.service-site) input,
+:where(.service-site) select,
+:where(.service-site) optgroup,
+:where(.service-site) textarea {
+  font: inherit;
+  color: inherit;
+  border-radius: 0;
+  background-color: transparent;
+  opacity: 1;
+}
+:where(.service-site) ::placeholder {
+  opacity: 1;
+}
+:where(.service-site) textarea {
+  resize: vertical;
+}
+:where(.service-site) button,
+:where(.service-site) input:where([type='button'], [type='reset'], [type='submit']) {
+  appearance: button;
+}
+:where(.service-site) [hidden]:where(:not([hidden='until-found'])) {
+  display: none !important;
+}
+
+/* Was `@layer base { * { @apply border-border } body { @apply font-sans
+   antialiased bg-background text-foreground } }` — scoped to .service-site
+   and its descendants instead of the bare `*`/`body` selectors, which would
+   otherwise reset border-color and force a background/font on every element
+   on every Mumbai page, including the Homepage. Restored to `@layer base`
+   (the wrapper opened above), so — like the original — it loses to any
+   utility; the plain `.service-site` specificity is therefore harmless. The
+   layer, not specificity, is what keeps it from out-ranking `border-*`/`bg-*`
+   utilities. */
+.service-site,
+:where(.service-site) * {
+  border-color: hsl(var(--border));
+}
+.service-site {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+}

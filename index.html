@@ -21,6 +21,18 @@
       content="Movement health & longevity medicine at Fairmont Mumbai — physiotherapy, diagnostics and IV therapy, without leaving the hotel."
     />
     <meta property="og:url" content="https://mumbai.aiwo.com/" />
+    <!-- Ported service pages (src/service-site) render inside .service-site
+         and use Plus Jakarta Sans / Space Mono via --app-font-sans /
+         --app-font-mono — loaded here exactly as the source project's own
+         index.html loads them, since those aren't in Mumbai's self-hosted
+         @fontsource set. Doesn't affect the Homepage: its own CSS never
+         references these two families. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>

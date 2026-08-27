@@ -1,6 +1,10 @@
-import { ServicePage } from '../ServicePage'
-import { rmr } from '../data/services/rmr'
+import { ServiceSiteLayout } from '../service-site/ServiceSiteLayout'
+import RMRPage from '../service-site/pages/RMRPage'
 
 export default function RmrRoute() {
-  return <ServicePage data={rmr} />
+  return (
+    <ServiceSiteLayout>
+      <RMRPage />
+    </ServiceSiteLayout>
+  )
 }

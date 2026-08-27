@@ -1,6 +1,10 @@
-import { ServicePage } from '../ServicePage'
-import { emsSculpting } from '../data/services/emsSculpting'
+import { ServiceSiteLayout } from '../service-site/ServiceSiteLayout'
+import SculptPage from '../service-site/pages/SculptPage'
 
 export default function EmsSculptingRoute() {
-  return <ServicePage data={emsSculpting} />
+  return (
+    <ServiceSiteLayout>
+      <SculptPage />
+    </ServiceSiteLayout>
+  )
 }
