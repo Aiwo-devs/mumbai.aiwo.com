@@ -14,6 +14,7 @@ interface BookingAccessProps {
   ctaSubline?: string
   methods: BookingMethod[]
   reportNote?: string
+  serviceName?: string
 }
 
 // Replaces Intake.tsx for Mumbai — that component's self-serve date/slot/name/
@@ -23,7 +24,7 @@ interface BookingAccessProps {
 // (.intake__layout grid, .intake-card panel, CornerTicks) with the form replaced by
 // a static list of the real booking-access methods — no fake confirmation state,
 // no invented contact details.
-export function BookingAccess({ eyebrow, headline, body, ctaLabel, ctaSubline, methods, reportNote }: BookingAccessProps) {
+export function BookingAccess({ eyebrow, headline, body, ctaLabel, ctaSubline, methods, reportNote, serviceName }: BookingAccessProps) {
   return (
     <section id="booking-access" className="section section--surface booking-access">
       <div className="container booking-access__layout">
@@ -33,7 +34,7 @@ export function BookingAccess({ eyebrow, headline, body, ctaLabel, ctaSubline, m
           <p className="section-body booking-access__body">{body}</p>
           {ctaLabel && (
             <>
-              <Button href="#booking-access" variant="primary" size="lg" className="booking-access__cta">
+              <Button href={`/book?serviceName=${encodeURIComponent(serviceName || headline)}`} variant="primary" size="lg" className="booking-access__cta">
                 {ctaLabel}
               </Button>
               {ctaSubline && <p className="booking-access__cta-subline">{ctaSubline}</p>}

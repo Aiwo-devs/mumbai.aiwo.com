@@ -110,7 +110,7 @@ export function ServicePage({ data }: { data: ServiceData }) {
       node: <Faq key="faq" items={data.faq.items} categoryByQuestion={data.faq.categoryByQuestion} />,
     })
   }
-  sections.push({ label: 'Final CTA', node: <BookingAccess key="booking-access" {...data.bookingAccess} /> })
+  sections.push({ label: 'Final CTA', node: <BookingAccess key="booking-access" {...data.bookingAccess} serviceName={data.name} /> })
 
   return (
     <>

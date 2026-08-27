@@ -12,6 +12,7 @@ const PostureScreeningRoute = lazy(() => import('./routes/PostureScreeningRoute'
 const RmrRoute = lazy(() => import('./routes/RmrRoute'))
 const EmsSculptingRoute = lazy(() => import('./routes/EmsSculptingRoute'))
 const Vo2MaxRoute = lazy(() => import('./routes/Vo2MaxRoute'))
+const BookingRoute = lazy(() => import('./routes/BookingRoute'))
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/services/rmr" element={<RmrRoute />} />
           <Route path="/services/ems-sculpting" element={<EmsSculptingRoute />} />
           <Route path="/services/vo2-max" element={<Vo2MaxRoute />} />
+          <Route path="/book" element={<BookingRoute />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
