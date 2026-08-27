@@ -53,23 +53,42 @@ const GOOGLE_ADS_PRODUCTION_HOSTNAME = 'mumbai.aiwo.com';
 // don't have routes here. Amounts are tracking-metadata labels only (see
 // comment above), not live pricing — real per-service Mumbai pricing is
 // wired up in the booking/API integration phase, not this port.
+// Single authoritative Mumbai service config (display name + charge amount, INR).
+// `amount` IS the value sent to InsertAppointmentWithPayment (the actual charge),
+// so it must equal the price shown on each page. These match the developer's
+// backend-tested Mumbai amounts (add-booking BookingSummary.getServicePrice):
+// RMR ₹4,999 (explicit override), VO2 ₹7,999 and AIWO Sculpt ₹3,500 (Fairmont
+// brochure), Posture ₹4,999 (the paid "Posture Screening & Correction" service
+// this route represents — see homepage catalogue mapping), IV ₹14,999 (base
+// infusion; the IV page is multi-option so its displayed price vs this base
+// charge is flagged for product review in the integration report).
 const ROUTE_META: Record<string, { name: string; amount: number }> = {
-  posture: { name: 'Posture Screening', amount: 1000 },
-  rmr: { name: 'RMR Test', amount: 2499 },
+  posture: { name: 'Posture Screening', amount: 4999 },
+  rmr: { name: 'RMR Test', amount: 4999 },
   vo2: { name: 'VO2 Max Test', amount: 7999 },
-  sculpt: { name: 'EMS Sculpting Consultation', amount: 1000 },
-  ivTherapy: { name: 'IV Therapy Consultation', amount: 1000 },
+  sculpt: { name: 'AIWO Sculpt', amount: 3500 },
+  ivTherapy: { name: 'IV Therapy Consultation', amount: 14999 },
 };
 
 const isProductionHost = typeof window !== 'undefined' && window.location.hostname === GOOGLE_ADS_PRODUCTION_HOSTNAME;
 
-// Non-production environments (local dev, previews, QA) must never call the dev/QA
-// API directly from the browser (that's a cross-origin call and gets CORS-blocked).
-// Instead they go through same-origin Netlify Function proxies, which hold the real
-// upstream host server-side (BOOKING_API_BASE_URL / AUTH_API_BASE_URL) and fail closed
-// with an error response if those server env vars aren't configured.
-const BASE_API = isProductionHost ? '/api' : '/.netlify/functions/booking-api-proxy';
-const AUTH_API = isProductionHost ? '/auth-api' : '/.netlify/functions/auth-api-proxy';
+// Mumbai branch scoping, ported from add-booking (src/api/bookingService.ts).
+// These identify the AIWO Mumbai (Fairmont) branch to the healthportal backend so
+// service/slot/appointment calls resolve to Mumbai — NOT a default/other branch.
+// Not secrets (public branch identifiers; the developer committed them plainly).
+export const BRANCH_ID = 'b0a11c00-0000-4000-8000-000000000002';
+export const BRANCH_CODE = 'MUM';
+
+// URL resolution: prefer the add-booking env-var config (VITE_API_BASE_URL /
+// VITE_AUTH_BASE_URL) when provided — that's the developer's Mumbai backend wiring.
+// When unset, fall back to this port's same-origin strategy: real /api|/auth-api on
+// the production host, else undeployed Netlify Function proxies that fail closed
+// (caught → user-facing error, never a fake success or a live/wrong-branch call).
+// Any real backend host / key stays in these env vars, never in committed source.
+const ENV_API = import.meta.env.VITE_API_BASE_URL as string | undefined;
+const ENV_AUTH = import.meta.env.VITE_AUTH_BASE_URL as string | undefined;
+const BASE_API = ENV_API || (isProductionHost ? '/api' : '/.netlify/functions/booking-api-proxy');
+const AUTH_API = ENV_AUTH || (isProductionHost ? '/auth-api' : '/.netlify/functions/auth-api-proxy');
 
 const normalizeServiceCode = (code?: string) =>
   String(code ?? "").replace(/\s+/g, "").toUpperCase();
@@ -106,7 +125,7 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
   const { data: servicesData, isLoading: isServicesLoading, isError: isServicesError, refetch: refetchServices } = useQuery({
     queryKey: ['service-types'],
     queryFn: async () => {
-      const res = await fetch(`${BASE_API}/doctor/service-types/list?pageNo=1&pagesize=100&pagination_required=false&search=`, {
+      const res = await fetch(`${BASE_API}/doctor/service-types/list?pageNo=1&pagesize=100&pagination_required=false&search=&branch_code=${BRANCH_CODE}`, {
         headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' }
       });
       if (!res.ok) {
@@ -408,7 +427,8 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
               body: JSON.stringify({
                 user_id: resolvedUserId, email: dummyEmail, first_name: formData.firstName, last_name: formData.lastName,
                 username, password: generatedPassword, phone_number: formattedPhone,
-                referred_by: '', gender: 'male', address_line1: '', city: '', postal_code: '', user_type: 2
+                referred_by: '', gender: 'male', address_line1: '', city: '', postal_code: '', user_type: 2,
+                branch_id: BRANCH_ID
               })
             });
             const webhookData = await webhookRes.json();
@@ -436,7 +456,8 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
           body: JSON.stringify({
             user_id: userId, email: dummyEmail, first_name: formData.firstName, last_name: formData.lastName,
             username, password: generatedPassword, phone_number: formattedPhone,
-            referred_by: '', gender: 'male', address_line1: '', city: '', postal_code: '', user_type: 2
+            referred_by: '', gender: 'male', address_line1: '', city: '', postal_code: '', user_type: 2,
+            branch_id: BRANCH_ID
           })
         });
         const webhookData = await webhookRes.json();
@@ -471,23 +492,20 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
         };
       });
 
-      // Tracking-metadata amount only (not live pricing — see ROUTE_META
-      // comment above); real per-service Mumbai pricing is wired up in the
-      // booking/API integration phase, not this port.
-      let amount = 1000;
-      if (routeType === "posture") amount = 1000;
-      else if (routeType === "rmr") amount = 2499;
-      else if (routeType === "vo2") amount = 5000;
-      else if (routeType === "sculpt") amount = 1000;
-      else if (routeType === "ivTherapy") amount = 1000;
-      else {
+      // Charge amount = the authoritative Mumbai price from ROUTE_META (single
+      // source of truth; must match the price shown on the page). For the generic
+      // services picker (routeType "none", homepage) map by the fetched service
+      // name to the same Mumbai values.
+      let amount = ROUTE_META[routeType]?.amount ?? 0;
+      if (routeType === "none") {
         const selectedServiceObj = services?.find((s: any) => s.id === formData.goals[0]);
         if (selectedServiceObj) {
           const sName = selectedServiceObj.name.toLowerCase();
-          if (sName.includes('vo2') || sName.includes('rmr') || sName.includes('body intelligence')) amount = 7000;
-          else if (sName.includes('dexa')) amount = 2500;
-          else if (sName.includes('posture')) amount = 1000;
-          else if (sName.includes('general physician') || sName.includes('consultation')) amount = 1000;
+          if (sName.includes('vo2')) amount = 7999;
+          else if (sName.includes('rmr')) amount = 4999;      // explicit override
+          else if (sName.includes('sculpt')) amount = 3500;
+          else if (sName.includes('posture')) amount = 4999;
+          else if (sName.includes('iv') || sName.includes('infusion')) amount = 14999;
         }
       }
 
@@ -509,7 +527,7 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
           customer_phone: formattedPhone,
           service_name: serviceName,
           date: formattedDate,
-          source: routeType === "sculpt" ? 'AIWO EMS Sculpting - Landing Page' : routeType === "ivTherapy" ? 'AIWO IV Therapy - Landing Page' : routeType === "rmr" ? 'AIWO RMR Test - Landing Page' : routeType === "vo2" ? 'AIWO VO2 Max Test - Landing Page' : routeType === "posture" ? 'AIWO Posture Screening - Landing Page' : 'AIWO Mumbai Website payment',
+          source: routeType === "sculpt" ? 'AIWO Sculpt - Landing Page' : routeType === "ivTherapy" ? 'AIWO IV Therapy - Landing Page' : routeType === "rmr" ? 'AIWO RMR Test - Landing Page' : routeType === "vo2" ? 'AIWO VO2 Max Test - Landing Page' : routeType === "posture" ? 'AIWO Posture Screening - Landing Page' : 'AIWO Mumbai Website payment',
           meta_pixel_id: META_PIXEL_ID,
           meta_event_source_url: typeof window !== 'undefined' ? window.location.href : '',
           ...getFbCookies(),
@@ -527,6 +545,13 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
         service_type_ids: formData.goals,
         resource_slot_ids: sorted.map(s => s.slot_id),
         booking_source: (routeType === "sculpt" || routeType === "ivTherapy") ? "online" : 'walk_in',
+        // Mumbai branch scoping + appointment metadata, ported from add-booking
+        // (BookingSummary appointment payload) so the appointment lands in the
+        // Mumbai (Fairmont) branch and matches the developer's tested contract.
+        branch_id: BRANCH_ID,
+        appointment_type: 1,
+        consustant_type: (routeType === "sculpt" || routeType === "ivTherapy") ? 2 : 1,
+        redirect_url: typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '',
       };
 
       const res = await fetch(`${BASE_API}/appointment/appointments/InsertAppointmentWithPayment`, {
@@ -764,7 +789,7 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
                             : routeType === "vo2"
                               ? "VO2 Max Test"
                               : routeType === "sculpt"
-                                ? "EMS Sculpting Consultation"
+                                ? "AIWO Sculpt"
                                 : routeType === "ivTherapy"
                                   ? "IV Therapy Consultation"
                                   : ""}

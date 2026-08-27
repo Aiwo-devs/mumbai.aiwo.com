@@ -38,7 +38,7 @@ function TopBar() {
       <div className="container mx-auto px-6 max-w-7xl py-2.5 flex items-center justify-between gap-4 text-xs font-mono tracking-widest">
         <div className="flex items-center gap-3">
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span>LIMITED TIME · AI POSTURE SCREENING · ₹1,000 · MUMBAI</span>
+          <span>LIMITED TIME · AI POSTURE SCREENING · ₹4,999 · MUMBAI</span>
         </div>
         <a href="#book" onClick={scrollTo("book")} className="hidden md:inline underline underline-offset-4">
           BOOK NOW
@@ -154,7 +154,7 @@ function Hero() {
                 </Button>
                 <div className="flex flex-col">
                   <div className="flex items-baseline gap-3">
-                    <span className="font-serif text-3xl text-foreground">₹1,000</span>
+                    <span className="font-serif text-3xl text-foreground">₹4,999</span>
                     <span className="font-mono text-xs font-bold border border-foreground px-2 py-1">LIMITED</span>
                   </div>
                   <span className="text-xs text-muted-foreground mt-1 font-mono tracking-wide">
@@ -696,7 +696,7 @@ function Book() {
 
             <div className="space-y-1 font-mono text-sm text-white/60">
               <div className="flex items-baseline gap-3">
-                <span className="font-serif text-3xl text-white">₹1,000</span>
+                <span className="font-serif text-3xl text-white">₹4,999</span>
                 <span className="border border-white/40 px-2 py-0.5 text-xs">LIMITED TIME</span>
               </div>
               <div>AIWO Longevity Clinic · Mumbai</div>

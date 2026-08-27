@@ -21,7 +21,7 @@ const defaultLinks: NavSection[] = [
   { label: "IV Therapy", href: "/services/iv-therapy" },
   { label: "Posture Screening", href: "/services/posture-screening" },
   { label: "RMR Test", href: "/services/rmr" },
-  { label: "EMS Sculpting", href: "/services/ems-sculpting" },
+  { label: "AIWO Sculpt", href: "/services/ems-sculpting" },
   { label: "VO2 Max Test", href: "/services/vo2-max" },
 ];
 

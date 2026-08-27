@@ -168,7 +168,7 @@ function Hero() {
                 </Button>
                 <div className="flex flex-col">
                   <div className="flex items-baseline gap-3">
-                    <span className="font-serif text-3xl text-foreground">₹2,499</span>
+                    <span className="font-serif text-3xl text-foreground">₹4,999</span>
                     <span className="font-mono text-xs font-bold border border-foreground px-2 py-1">COMPLETE TEST</span>
                   </div>
                   <span className="text-xs text-muted-foreground mt-1 font-mono tracking-wide">
@@ -575,13 +575,13 @@ function ValueEquation() {
               <div className="font-mono text-[10px] uppercase tracking-widest text-white/40 mb-6">
                 Complete test
               </div>
-              <div className="font-serif text-[72px] leading-none text-white mb-2">₹2,499</div>
+              <div className="font-serif text-[72px] leading-none text-white mb-2">₹4,999</div>
               <p className="text-white/50 text-[15px] leading-relaxed mb-8">
                 For a measurement that can change every nutrition and training decision you make for the next 12 months.
               </p>
               <Button asChild className="w-full bg-white text-black hover:bg-white/90 rounded-none h-14 font-medium text-base mb-4">
                 <a href="#book" onClick={scrollTo("book")} data-track="pricing-cta" className="inline-flex items-center justify-center gap-2">
-                  Book My RMR Test — ₹2,499 <ArrowRight className="w-5 h-5" />
+                  Book My RMR Test — ₹4,999 <ArrowRight className="w-5 h-5" />
                 </a>
               </Button>
               <a
@@ -849,8 +849,8 @@ function FAQ() {
       a: "Your report includes: your exact RMR in kcal/day, a comparison of your metabolic rate versus others of your height and weight, three calorie targets (maintenance / weight loss / exercise burn), a Quality Score, and your BMI. AIWO also provides a Smart Report with additional metabolic insights and a personalised expert consultation.",
     },
     {
-      q: "Is ₹2,499 for the test alone, or does it include the consultation?",
-      a: "₹2,499 includes the full indirect calorimetry RMR test, your personalised report, your AIWO Smart Report, and the post-test expert review. A full nutritionist consultation for a personalised eating plan is available as an additional service.",
+      q: "Is ₹4,999 for the test alone, or does it include the consultation?",
+      a: "₹4,999 includes the full indirect calorimetry RMR test, your personalised report, your AIWO Smart Report, and the post-test expert review. A full nutritionist consultation for a personalised eating plan is available as an additional service.",
     },
     {
       q: "How often should I re-test my RMR?",
@@ -909,7 +909,7 @@ export default function RMRPage() {
           { label: "Pricing", href: "#pricing" },
           { label: "FAQ", href: "#faq" },
         ]}
-        ctaLabel="Book · ₹2,499"
+        ctaLabel="Book · ₹4,999"
       />
       <main className="pt-0 md:pt-[80px]">
         <Hero />

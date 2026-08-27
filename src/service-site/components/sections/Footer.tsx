@@ -20,7 +20,7 @@ export function Footer({ brand = "AIWO Longevity Clinic" }: FooterProps) {
               <Link to="/services/iv-therapy" className="hover:text-foreground transition-colors">IV Therapy</Link>
               <Link to="/services/posture-screening" className="hover:text-foreground transition-colors">Posture Screening</Link>
               <Link to="/services/rmr" className="hover:text-foreground transition-colors">RMR Test</Link>
-              <Link to="/services/ems-sculpting" className="hover:text-foreground transition-colors">EMS Sculpting</Link>
+              <Link to="/services/ems-sculpting" className="hover:text-foreground transition-colors">AIWO Sculpt</Link>
               <Link to="/services/vo2-max" className="hover:text-foreground transition-colors">VO2 Max Test</Link>
             </div>
           </div>

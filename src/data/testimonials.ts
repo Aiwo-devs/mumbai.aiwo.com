@@ -121,11 +121,11 @@ export const testimonials: Testimonial[] = [
     isPlaceholder: true,
   },
 
-  // EMS Sculpting — time efficiency, supervised session, fitting a busy schedule
+  // AIWO Sculpt — time efficiency, supervised session, fitting a busy schedule
   {
     quote: "Fit it in before a meeting, was in and out in under 30 minutes. Felt like I'd actually worked out, which surprised me.",
     displayName: 'Sanjana Rao',
-    context: 'EMS Sculpting guest',
+    context: 'AIWO Sculpt guest',
     service: 'ems-sculpting',
     source: PLACEHOLDER_SOURCE,
     verified: false,
@@ -136,7 +136,7 @@ export const testimonials: Testimonial[] = [
     quote:
       'Was expecting it to feel gimmicky. It did not — someone was adjusting the intensity through the whole session, not just strapping me in and walking off.',
     displayName: 'Rahul Mehta',
-    context: 'EMS Sculpting guest',
+    context: 'AIWO Sculpt guest',
     service: 'ems-sculpting',
     source: PLACEHOLDER_SOURCE,
     verified: false,
@@ -147,7 +147,7 @@ export const testimonials: Testimonial[] = [
     quote:
       'Went in curious more than committed. The trainer adjusted things as we went based on how I was responding, which I was not expecting from something that sounded so automated.',
     displayName: 'Divya Krishnan',
-    context: 'EMS Sculpting guest',
+    context: 'AIWO Sculpt guest',
     service: 'ems-sculpting',
     source: PLACEHOLDER_SOURCE,
     verified: false,

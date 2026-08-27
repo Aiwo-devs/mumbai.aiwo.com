@@ -24,6 +24,6 @@ export const serviceNavigation: ServiceNavItem[] = [
   { label: 'IV Therapy', href: '/services/iv-therapy' },
   { label: 'Posture Screening', href: '/services/posture-screening' },
   { label: 'RMR Test', href: '/services/rmr' },
-  { label: 'AIWO EMS Sculpting', href: '/services/ems-sculpting' },
+  { label: 'AIWO Sculpt', href: '/services/ems-sculpting' },
   { label: 'VO2 Max Testing', href: '/services/vo2-max' },
 ]

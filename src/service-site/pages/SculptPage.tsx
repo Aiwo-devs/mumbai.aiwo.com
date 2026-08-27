@@ -133,12 +133,12 @@ function Hero() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-4">
                 <Button asChild className="bg-black hover:bg-black/90 text-white rounded-none h-auto min-h-14 sm:h-14 px-8 py-3 sm:py-0 font-medium text-base whitespace-normal w-full sm:w-auto">
                   <a href="#intake" onClick={scrollTo("intake")} className="inline-flex items-center justify-center gap-2 text-center">
-                    Book Your Body Composition Consult — ₹1,000 <ArrowRight className="w-5 h-5 shrink-0" />
+                    Book Your Body Composition Consult — ₹3,500 <ArrowRight className="w-5 h-5 shrink-0" />
                   </a>
                 </Button>
               </div>
               <p className="font-mono text-[11px] text-muted-foreground tracking-widest">
-                ₹1,000 consult · 20 minutes · Body composition reading included
+                ₹3,500 · 20 minutes · Body composition reading included
               </p>
             </Reveal>
           </div>
@@ -373,7 +373,7 @@ function Process() {
     {
       n: "01",
       name: "Schedule",
-      body: "Book your body composition consult — ₹1,000. 20 minutes. Includes your body composition reading. Confirm your treatment area and programme design with the clinical team.",
+      body: "Book your body composition consult — ₹3,500. 20 minutes. Includes your body composition reading. Confirm your treatment area and programme design with the clinical team.",
     },
     {
       n: "02",
@@ -426,7 +426,7 @@ function Process() {
             </a>
           </Button>
           <p className="font-mono text-[11px] text-white/40 tracking-widest">
-            ₹1,000 · 20 minutes · Body composition reading included
+            ₹3,500 · 20 minutes · Body composition reading included
           </p>
         </div>
       </div>
@@ -667,7 +667,7 @@ function Pricing() {
     "Clinical review at session 8 + session 14",
     "Programme-end outcome measurement",
     "Clinical team supervision throughout",
-    "₹1,000 body composition consult to start",
+    "₹3,500 body composition consult to start",
   ];
 
   return (
@@ -682,7 +682,7 @@ function Pricing() {
               <span className="italic text-white/60">Complete clinical support.</span>
             </h2>
             <p className="text-white/60 text-base leading-relaxed mb-6">
-              AIWO Sculpt is a bundled 10-week clinical programme — not per-session aesthetic visits. Pricing is calibrated to your treatment area and confirmed in your ₹1,000 body composition consult. No upselling per session. No surprise charges after you commit.
+              AIWO Sculpt is a bundled 10-week clinical programme — not per-session aesthetic visits. Pricing is calibrated to your treatment area and confirmed in your ₹3,500 body composition consult. No upselling per session. No surprise charges after you commit.
             </p>
             <div className="border border-white/15 p-5">
               <p className="font-mono text-[11px] text-white/30 tracking-widest leading-relaxed">
@@ -711,11 +711,11 @@ function Pricing() {
 
               <Button asChild className="w-full bg-white hover:bg-white/90 text-black rounded-none h-13 font-medium text-base">
                 <a href="#intake" onClick={scrollTo("intake")} className="inline-flex items-center justify-center gap-2">
-                  Book Consult — ₹1,000 <ArrowRight className="w-5 h-5" />
+                  Book Consult — ₹3,500 <ArrowRight className="w-5 h-5" />
                 </a>
               </Button>
               <p className="font-mono text-[10px] text-white/25 tracking-widest text-center mt-3">
-                ₹1,000 · 20 minutes · All-inclusive
+                ₹3,500 · 20 minutes · All-inclusive
               </p>
             </div>
           </div>
@@ -867,7 +867,7 @@ export default function SculptPage() {
           { label: "Compare", href: "#comparison" },
           { label: "FAQ", href: "#faq" },
         ]}
-        ctaLabel="Book Consult · ₹1,000"
+        ctaLabel="Book Consult · ₹3,500"
         ctaTarget="#intake"
       />
       <main>

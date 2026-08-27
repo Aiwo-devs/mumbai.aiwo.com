@@ -43,7 +43,7 @@ const NAV_LINKS = [
   { href: '#cluster-gift', label: 'The Gift' },
   { href: '#cluster-longevity-lab', label: 'Longevity Lab' },
   { href: '#cluster-core-physio', label: 'Physiotherapy' },
-  { href: '#cluster-house-signatures', label: 'EMS Sculpting' },
+  { href: '#cluster-house-signatures', label: 'AIWO Sculpt' },
   { href: '#cluster-infusion-bar', label: 'Infusion Bar' },
   { href: '#faq', label: 'FAQs' },
 ]

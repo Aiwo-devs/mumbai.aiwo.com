@@ -279,7 +279,7 @@ export const ivTherapy: ServiceData = {
       { label: 'Posture & Longevity Assessment', href: '/services/posture-screening' },
       { label: 'VO2 Max Testing', href: '/services/vo2-max' },
       { label: 'RMR Test', href: '/services/rmr' },
-      { label: 'AIWO EMS Sculpting', href: '/services/ems-sculpting' },
+      { label: 'AIWO Sculpt', href: '/services/ems-sculpting' },
     ],
   },
   disclaimer:

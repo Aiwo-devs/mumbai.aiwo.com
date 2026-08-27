@@ -210,7 +210,7 @@ export const catalogGroups: CatalogGroup[] = [
         status: 'scaling',
       },
       {
-        name: 'AIWO EMS Sculpting',
+        name: 'AIWO Sculpt',
         description: 'A supervised whole-body electro-muscle-stimulation suit session; twenty minutes equal to hours in the gym',
         venue: 'Bluxone Spa / Gym',
         duration: '20 min',
@@ -247,7 +247,7 @@ export const catalogGroups: CatalogGroup[] = [
         description: 'A short breath test measuring the exact calories your body burns at rest, to anchor nutrition to your real metabolism',
         venue: 'Bluxone Spa',
         duration: '~10 min',
-        price: 'At consultation',
+        price: '₹4,999',
         status: 'live',
         cta: { label: 'Book My Test', href: '/services/rmr' },
       },
@@ -504,7 +504,7 @@ export const footer = {
     { label: 'Posture & Longevity Assessment', href: '/services/posture-screening' },
     { label: 'VO2 Max Testing', href: '/services/vo2-max' },
     { label: 'RMR Test', href: '/services/rmr' },
-    { label: 'AIWO EMS Sculpting', href: '/services/ems-sculpting' },
+    { label: 'AIWO Sculpt', href: '/services/ems-sculpting' },
     { label: 'IV Therapy', href: '/services/iv-therapy' },
   ],
 }
@@ -512,7 +512,7 @@ export const footer = {
 export const homepageSeo = {
   title: 'AIWO Longevity Clinic, Fairmont Mumbai | Diagnostics · Physio · IV · Aesthetics',
   description:
-    'Movement health and longevity, all under one roof at Fairmont Mumbai — VO2 Max, RMR, physiotherapy, EMS sculpting, IV therapy and more. Start with a free assessment.',
+    'Movement health and longevity, all under one roof at Fairmont Mumbai — VO2 Max, RMR, physiotherapy, AIWO Sculpt, IV therapy and more. Start with a free assessment.',
   path: '/',
   h1: 'AIWO Longevity Clinic at Fairmont Mumbai',
 }
