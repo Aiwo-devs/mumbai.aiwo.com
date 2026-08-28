@@ -17,9 +17,9 @@ const formatDateNicely = (dateStr: string) => {
 const getServicePrice = (serviceName: string): number => {
   const name = (serviceName || '').toLowerCase()
   if (name.includes('vo2 max')) return 7999
-  if (name.includes('sculpting')) return 3500
+  if (name.includes('sculpting')) return 1999
   if (name.includes('posture')) return 4999
-  if (name.includes('iv iron') || name.includes('mega glow') || name.includes('iv therapy')) return 14999
+  if (name.includes('iv iron') || name.includes('mega glow') || name.includes('iv therapy')) return 1999
   if (name.includes('rmr')) return 4999
   return 0
 }
@@ -65,33 +65,112 @@ export function BookingSummary({ state, dispatch }: BookingSummaryProps) {
         gender: gender,
       }
 
-      let userId = null
+      const AUTH_BASE_API = import.meta.env.VITE_AUTH_BASE_URL
+      const BASE_API = import.meta.env.VITE_API_BASE_URL
 
-      try {
-        const authRes = await bookingService.registerUser(registerPayload)
-        // New user created successfully
-        userId = authRes.data?.user?.id || authRes.id || authRes.user?.id || authRes.user_id
+      const registerRes = await fetch(`${AUTH_BASE_API}/public/register/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' },
+        body: JSON.stringify(registerPayload)
+      });
+      const registerData = await registerRes.json();
 
-        // Webhook sync to Health API to create Patient profile
-        if (userId) {
-          const syncRes = await bookingService.syncPatient({
-            user_id: userId,
-            first_name: firstName,
-            last_name: lastName,
-            email: email,
-            phone_number: phone,
-            gender: gender,
-            user_type: 2,
-            branch_id: BRANCH_ID
-          })
-          patientId = syncRes.data?.patient_id || syncRes.data?.id || syncRes.patient_id || syncRes.id
+      if (!registerData.success && registerRes.status !== 200 && registerRes.status !== 201) {
+        // Check if it's a phone/email/username already-exists error with an encrypted_user_id we can resolve
+        const isDuplicate =
+          registerData.error === 'validation_error' &&
+          registerData.encrypted_user_id &&
+          (
+            (registerData.errors?.phone_number && String(registerData.errors.phone_number).toLowerCase().includes('already exists')) ||
+            (registerData.errors?.email && String(registerData.errors.email).toLowerCase().includes('already exists')) ||
+            (registerData.errors?.username && String(registerData.errors.username).toLowerCase().includes('already exists'))
+          );
+
+        if (isDuplicate) {
+          // Step A: decrypt the encrypted_user_id to get the numeric user_id
+          const decryptRes = await fetch(`${BASE_API}/user/user-id-crypto/encrypt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' },
+            body: JSON.stringify({ user_id: registerData.encrypted_user_id })
+          });
+          const decryptData = await decryptRes.json();
+          if (!decryptData.success || !decryptData.user_id) {
+            throw new Error('User already registered but could not retrieve account. Please contact support.');
+          }
+          const resolvedUserId = decryptData.user_id;
+
+          // Step B: fetch existing patient record by user_id
+          const patientRes = await fetch(`${BASE_API}/doctor/patient/GetPatientsByUserId/${resolvedUserId}`, {
+            headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' }
+          });
+          const patientData = await patientRes.json();
+          const existingPatient = patientData?.patients?.[0] || patientData?.data?.[0] || (Array.isArray(patientData) ? patientData[0] : null);
+
+          if (existingPatient?.id) {
+            // Patient record already exists — use it directly
+            patientId = existingPatient.id;
+          } else if (existingPatient?.patient_id) {
+            patientId = existingPatient.patient_id;
+          } else {
+            // User exists but has no patient record yet — create one via webhook
+            const webhookRes = await fetch(`${BASE_API}/doctor/webhooks/user-created`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' },
+              body: JSON.stringify({
+                user_id: resolvedUserId,
+                email: email,
+                first_name: firstName,
+                last_name: lastName,
+                username: registerPayload.username,
+                password: registerPayload.password,
+                phone_number: phone,
+                gender: gender,
+                user_type: 2,
+                branch_id: BRANCH_ID
+              })
+            });
+            const webhookData = await webhookRes.json();
+            patientId = webhookData?.data?.patient_id || webhookData?.patient_id || webhookData?.data?.id;
+            if (!patientId) throw new Error('User already registered but could not create patient record. Please contact support.');
+          }
+        } else {
+          // Other registration errors — surface them
+          if (registerData.error === 'validation_error' && registerData.errors) {
+            const errorMsgs = Object.values(registerData.errors).flat().join(' ');
+            throw new Error(errorMsgs || registerData.message || 'Registration failed');
+          }
+          throw new Error(registerData.message || 'Registration failed');
         }
-      } catch (err: any) {
-        throw new Error('User already exists or registration failed. (Implementation details depend on specific API error format)')
+      }
+
+      // New user path: create patient via webhook
+      if (!patientId && (registerData.success || registerRes.status === 200 || registerRes.status === 201)) {
+        const userId = registerData.data?.user?.id || registerData.id || registerData.user?.id || registerData.user_id;
+
+        if (userId) {
+          const webhookRes = await fetch(`${BASE_API}/doctor/webhooks/user-created`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' },
+            body: JSON.stringify({
+              user_id: userId,
+              email: email,
+              first_name: firstName,
+              last_name: lastName,
+              username: registerPayload.username,
+              password: registerPayload.password,
+              phone_number: phone,
+              gender: gender,
+              user_type: 2,
+              branch_id: BRANCH_ID
+            })
+          });
+          const webhookData = await webhookRes.json();
+          patientId = webhookData?.data?.patient_id || webhookData?.patient_id || webhookData?.data?.id;
+        }
       }
 
       if (!patientId) {
-        throw new Error('Failed to resolve patient ID.')
+        throw new Error('Failed to resolve patient ID.');
       }
 
 
