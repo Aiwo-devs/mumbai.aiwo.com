@@ -33,3 +33,10 @@ Thumbs.db
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Local Netlify folder
+.netlify
+
+# Local diagnostic output
+rendered.html
+rendered.txt

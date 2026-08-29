@@ -2,6 +2,19 @@
   command = "npm run build"
   publish = "dist"
 
+# Same-origin booking/auth proxy functions (non-production hosts). The browser
+# calls /.netlify/functions/*-proxy; the function forwards to the upstream host
+# from the server-only BOOKING_API_BASE_URL / AUTH_API_BASE_URL env vars.
+[functions]
+  directory = "netlify/functions"
+
+# `netlify dev` runs Vite behind the function/redirect runtime so local requests
+# use the same same-origin transport as a Netlify deploy.
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+  port = 8888
+
 # Client-side routing (react-router-dom) — without this, a direct load or
 # refresh on any route other than "/" (e.g. /services/iv-therapy) 404s,
 # since there's no matching file on disk for Netlify to serve.

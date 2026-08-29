@@ -1,19 +1,13 @@
 /**
- * BOOKING/API INTEGRATION POINT — ported UI only, not live for Mumbai yet.
- *
- * On submit this form calls a real backend flow: fetch available slots,
- * register/find a patient account, book the appointment, then (on success)
- * redirect to a Razorpay checkout URL. All of it goes through BASE_API/AUTH_API
- * below, which on any non-production hostname (this review deploy included)
- * route through /.netlify/functions/booking-api-proxy and auth-api-proxy —
- * neither of which is deployed on this Mumbai site. Every call therefore
- * fails closed (caught, shown as a normal user-facing error message) rather
- * than faking success or reaching a live backend/Razorpay. Wiring this up to
- * Mumbai's real backend is the next phase, not this port.
+ * Booking form. On submit it runs the full backend flow — fetch available slots,
+ * register/find a patient account, book the appointment, then redirect to the
+ * Razorpay checkout URL — all through BASE_API/AUTH_API below, which are the
+ * same-origin /api (production) or /.netlify/functions/*-proxy (every other host)
+ * paths. Any failure is caught and shown as a normal user-facing error rather than
+ * faking success.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any -- response shapes for this
-   not-yet-integrated backend aren't typed anywhere in this project; real types
-   land with the booking/API integration phase referenced above. */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the healthportal response
+   shapes are not typed in this project; the responses are validated at runtime. */
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Reveal } from "@/components/Reveal";
@@ -33,35 +27,19 @@ declare global {
   }
 }
 
-// PORT NOTE: the source project's real Meta Pixel / Google Ads IDs were here
-// — left blank rather than carried over, since those belong to a different
-// product/account. trackMeta()/gtag() both already no-op when these are
-// falsy/absent, so this is safe as-is; fill in AIWO's own IDs when this
-// booking flow is actually wired up for Mumbai.
+// Left blank until AIWO's own Meta Pixel / Google Ads IDs are provided; trackMeta()
+// and gtag() both no-op while these are empty.
 const META_PIXEL_ID = '';
 const GOOGLE_ADS_CONVERSION_SEND_TO = '';
-// Gates production-only behavior (Google Ads conversion firing, TEST vs
-// PRODUCTION lead environment). Mumbai's own eventual production domain —
-// on any other host (including this review deploy) these stay gated off.
+// Gates production-only behavior (Google Ads conversion firing, TEST vs PRODUCTION
+// lead environment); off on every other host.
 const GOOGLE_ADS_PRODUCTION_HOSTNAME = 'mumbai.aiwo.com';
 
-// Per-funnel display name + advertised price, used for Meta browser events
-// (ViewContent / Lead). The actual charged amount for the order and the
-// server-side Purchase use the real captured amount from Razorpay.
-// Trimmed to the 5 services Mumbai is actually launching — the source
-// project's other funnels (sleep, dexa, bodyIntel, skinAnalysis, omegaIndex)
-// don't have routes here. Amounts are tracking-metadata labels only (see
-// comment above), not live pricing — real per-service Mumbai pricing is
-// wired up in the booking/API integration phase, not this port.
-// Single authoritative Mumbai service config (display name + charge amount, INR).
-// `amount` IS the value sent to InsertAppointmentWithPayment (the actual charge),
-// so it must equal the price shown on each page. These match the developer's
-// backend-tested Mumbai amounts (add-booking BookingSummary.getServicePrice):
-// RMR ₹4,999 (explicit override), VO2 ₹7,999 and AIWO Sculpt ₹3,500 (Fairmont
-// brochure), Posture ₹4,999 (the paid "Posture Screening & Correction" service
-// this route represents — see homepage catalogue mapping), IV ₹14,999 (base
-// infusion; the IV page is multi-option so its displayed price vs this base
-// charge is flagged for product review in the integration report).
+// Per-route display name + catalogue amount (INR). The amount is the treatment's
+// own catalogue price, used for Meta ViewContent/Lead and as the charge for routes
+// that book their own service. IV Therapy and AIWO Sculpt instead book a General
+// Physician consultation and charge FIRST_GP_CONSULTATION_AMOUNT (see below), so
+// their catalogue amounts here are used for display/tracking only, not the charge.
 const ROUTE_META: Record<string, { name: string; amount: number }> = {
   posture: { name: 'Posture Screening', amount: 4999 },
   rmr: { name: 'RMR Test', amount: 4999 },
@@ -70,32 +48,58 @@ const ROUTE_META: Record<string, { name: string; amount: number }> = {
   ivTherapy: { name: 'IV Therapy Consultation', amount: 14999 },
 };
 
-const isProductionHost = typeof window !== 'undefined' && window.location.hostname === GOOGLE_ADS_PRODUCTION_HOSTNAME;
+// The initial online booking for IV Therapy and AIWO Sculpt is a General Physician
+// consultation at ₹1,999 — not the treatment itself. This is a booking consultation
+// amount only; the public catalogue/landing prices for IV and AIWO Sculpt are shown
+// on their pages and are left unchanged. The consultation service is resolved from
+// the live branch_code=MUM catalogue by its stable backend code (DOCTOR_CONSULTATION,
+// "General Doctor Consultation"), with a name fallback — no service UUID is hardcoded.
+const CONSULTATION_ROUTES = new Set<string>(['ivTherapy', 'sculpt']);
+const FIRST_GP_CONSULTATION_AMOUNT = 1999;
+const FIRST_GP_LABEL = 'First General Physician Consultation';
+const GP_CONSULTATION_CODE = 'DOCTOR_CONSULTATION';
+const matchesFirstGeneralPhysician = (s: any) =>
+  normalizeServiceCode(s?.code) === GP_CONSULTATION_CODE ||
+  String(s?.name ?? '').toLowerCase().includes('general doctor consultation');
 
-// Mumbai branch scoping, ported from add-booking (src/api/bookingService.ts).
-// These identify the AIWO Mumbai (Fairmont) branch to the healthportal backend so
-// service/slot/appointment calls resolve to Mumbai — NOT a default/other branch.
-// Not secrets (public branch identifiers; the developer committed them plainly).
+// Public AIWO Mumbai (Fairmont) branch identifiers — not secrets. They scope
+// service/slot/appointment calls to the Mumbai branch on the healthportal backend.
 export const BRANCH_ID = 'b0a11c00-0000-4000-8000-000000000002';
 export const BRANCH_CODE = 'MUM';
 
-// URL resolution: prefer the add-booking env-var config (VITE_API_BASE_URL /
-// VITE_AUTH_BASE_URL) when provided — that's the developer's Mumbai backend wiring.
-// When unset, fall back to this port's same-origin strategy: real /api|/auth-api on
-// the production host, else undeployed Netlify Function proxies that fail closed
-// (caught → user-facing error, never a fake success or a live/wrong-branch call).
-// Any real backend host / key stays in these env vars, never in committed source.
-const ENV_API = import.meta.env.VITE_API_BASE_URL as string | undefined;
-const ENV_AUTH = import.meta.env.VITE_AUTH_BASE_URL as string | undefined;
-const BASE_API = ENV_API || (isProductionHost ? '/api' : '/.netlify/functions/booking-api-proxy');
-const AUTH_API = ENV_AUTH || (isProductionHost ? '/auth-api' : '/.netlify/functions/auth-api-proxy');
+// One transport contract for every environment: the browser only ever calls
+// same-origin paths. On the production host that is /api and /auth-api (routed to
+// the backend by production infrastructure); on every other host — local
+// `netlify dev`, Netlify deploy previews and branch deploys — it is the same-origin
+// Netlify Function proxies (netlify/functions/*-proxy), which forward to the upstream
+// host held in the server-only BOOKING_API_BASE_URL / AUTH_API_BASE_URL env vars.
+// No backend host or secret ever reaches the browser, and there is no cross-origin
+// CORS dependency.
+const isProductionHost = typeof window !== 'undefined' && window.location.hostname === GOOGLE_ADS_PRODUCTION_HOSTNAME;
+const BASE_API = isProductionHost ? '/api' : '/.netlify/functions/booking-api-proxy';
+const AUTH_API = isProductionHost ? '/auth-api' : '/.netlify/functions/auth-api-proxy';
+
+// A misconfigured/unreachable API (or a Netlify SPA rewrite) can answer an API
+// request with HTTP 200 + text/html (index.html). Parsing that as JSON only fails
+// later at res.json(); worse, a lenient parse could mis-read it as "success".
+// Reject anything that is not a real JSON API response BEFORE trusting it, so a
+// SPA-HTML fallback is never mistaken for data — identically in every environment.
+async function fetchJson(url: string, init?: RequestInit): Promise<any> {
+  const res = await fetch(url, init);
+  const contentType = (res.headers.get('content-type') || '').toLowerCase();
+  if (!res.ok || !contentType.includes('application/json')) {
+    // Generic, non-technical marker; surfaced to users as a clean unavailable state.
+    throw new Error('SERVICE_UNAVAILABLE');
+  }
+  return res.json();
+}
 
 const normalizeServiceCode = (code?: string) =>
   String(code ?? "").replace(/\s+/g, "").toUpperCase();
 
 const ALLOWED_SERVICES = [
   "pap smear", "daily routine exercise by physio", "physiotheraphy", "diet counselling",
-  "general physician doctor consultation", "psycological councelling", "psychological assessment",
+  "general physician doctor consultation", "general doctor consultation", "psycological councelling", "psychological assessment",
   "iv therapy with vitamins", "hyperbaric oxygen therapy", "cosmetology", "dental",
   "massage therapy", "yoga session", "sauna", "foot reflexology", "egoscue tower",
   "sleep study", "easy flexibility", "stability dance", "4x4 norwegian run", "zone-2 training",
@@ -124,32 +128,24 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
 
   const { data: servicesData, isLoading: isServicesLoading, isError: isServicesError, refetch: refetchServices } = useQuery({
     queryKey: ['service-types'],
+    // fetchJson() rejects any non-JSON/HTML response, so a same-origin SPA fallback
+    // can never be misread as a successful service load.
     queryFn: async () => {
-      const res = await fetch(`${BASE_API}/doctor/service-types/list?pageNo=1&pagesize=100&pagination_required=false&search=&branch_code=${BRANCH_CODE}`, {
+      const json = await fetchJson(`${BASE_API}/doctor/service-types/list?pageNo=1&pagesize=100&pagination_required=false&search=&branch_code=${BRANCH_CODE}`, {
         headers: { 'Content-Type': 'application/json', 'x-application-name': 'healthportal' }
       });
-      if (!res.ok) {
-        throw new Error(`Service API failed with status ${res.status}`);
-      }
-      const json = await res.json();
       const servicesArray = json.data || [];
-      const rawSculptMatch = servicesArray.find((s: any) =>
-        normalizeServiceCode(s.code) === "AIWO_SCULPT_CONSULTATION"
-      );
-      const sculptNoResources = !!(rawSculptMatch && (!rawSculptMatch.ServiceResourceAssignments || rawSculptMatch.ServiceResourceAssignments.length === 0));
-      return {
-        items: servicesArray.filter((s: any) => {
-          const isAllowed = ALLOWED_SERVICES.includes(s.name.toLowerCase().trim())
-            || normalizeServiceCode(s.code) === "AIWO_SCULPT_CONSULTATION";
-          return isAllowed && !s.is_third_party && s.ServiceResourceAssignments?.length > 0;
-        }),
-        sculptNoResources,
-      };
+      return servicesArray.filter((s: any) => {
+        const code = normalizeServiceCode(s.code);
+        const isAllowed = ALLOWED_SERVICES.includes(s.name.toLowerCase().trim())
+          || code === "AIWO_SCULPT_CONSULTATION"
+          || code === GP_CONSULTATION_CODE;
+        return isAllowed && !s.is_third_party && s.ServiceResourceAssignments?.length > 0;
+      });
     }
   });
 
-  const services = servicesData?.items;
-  const sculptNoResources = servicesData?.sculptNoResources ?? false;
+  const services = servicesData;
 
   const [formData, setFormData] = useState({
     date: "",
@@ -163,10 +159,7 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
 
   const [minDate, setMinDate] = useState("");
 
-  // Matched against Mumbai's exact 5 live routes (not the source project's
-  // fuzzy endsWith/includes matching against its own 10 routes, two of which
-  // — /vo2 and /sculpt — would never have matched Mumbai's actual
-  // /services/vo2-max and /services/ems-sculpting paths at all).
+  // Map the current pathname to one of the five live service routes.
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.replace(/\/$/, '').toLowerCase();
@@ -217,11 +210,11 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
       } else if (routeType === "vo2") {
         const s = services.find((s: any) => s.name.toLowerCase().includes('vo2'));
         if (s) setFormData(prev => ({ ...prev, goals: [s.id] }));
-      } else if (routeType === "sculpt") {
-        const s = services.find((s: any) => normalizeServiceCode(s.code) === "AIWO_SCULPT_CONSULTATION");
-        if (s) setFormData(prev => ({ ...prev, goals: [s.id] }));
-      } else if (routeType === "ivTherapy") {
-        const s = services.find((s: any) => s.name.toLowerCase().includes('iv therapy'));
+      } else if (routeType === "sculpt" || routeType === "ivTherapy") {
+        // Initial online booking for IV / AIWO Sculpt is a First General Physician
+        // consultation (₹1,999), resolved from live Mumbai data by name — NOT the
+        // treatment service. Public catalogue prices on those pages are unchanged.
+        const s = services.find(matchesFirstGeneralPhysician);
         if (s) setFormData(prev => ({ ...prev, goals: [s.id] }));
       }
     }
@@ -497,6 +490,11 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
       // services picker (routeType "none", homepage) map by the fetched service
       // name to the same Mumbai values.
       let amount = ROUTE_META[routeType]?.amount ?? 0;
+      if (CONSULTATION_ROUTES.has(routeType)) {
+        // IV Therapy / AIWO Sculpt initial booking = First General Physician
+        // consultation charge (₹1,999), distinct from the treatment catalogue price.
+        amount = FIRST_GP_CONSULTATION_AMOUNT;
+      }
       if (routeType === "none") {
         const selectedServiceObj = services?.find((s: any) => s.id === formData.goals[0]);
         if (selectedServiceObj) {
@@ -545,9 +543,8 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
         service_type_ids: formData.goals,
         resource_slot_ids: sorted.map(s => s.slot_id),
         booking_source: (routeType === "sculpt" || routeType === "ivTherapy") ? "online" : 'walk_in',
-        // Mumbai branch scoping + appointment metadata, ported from add-booking
-        // (BookingSummary appointment payload) so the appointment lands in the
-        // Mumbai (Fairmont) branch and matches the developer's tested contract.
+        // Branch scoping + appointment metadata so the appointment lands in the
+        // Mumbai (Fairmont) branch.
         branch_id: BRANCH_ID,
         appointment_type: 1,
         consustant_type: (routeType === "sculpt" || routeType === "ivTherapy") ? 2 : 1,
@@ -645,17 +642,28 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const sculptServiceFound = !!(services?.find((s: any) =>
-    normalizeServiceCode(s.code) === "AIWO_SCULPT_CONSULTATION"
-  ));
-
-  const sculptStatus: 'idle' | 'loading' | 'error' | 'no_resources' | 'not_found' | 'ok' =
-    routeType !== 'sculpt' ? 'idle'
+  // Booking availability for EVERY fixed-route funnel (IV, Sculpt, RMR, VO2,
+  // Posture) — not only Sculpt. The Confirm CTA can only work once a backend
+  // service has resolved into formData.goals, so every not-ready reason is
+  // surfaced as a clean, non-technical status rather than leaving the button
+  // silently disabled with a misleading service label.
+  const serviceResolved = formData.goals.length > 0;
+  const serviceConfigStatus: 'idle' | 'loading' | 'error' | 'not_found' | 'ok' =
+    routeType === 'none' ? 'idle'
     : isServicesLoading ? 'loading'
     : isServicesError ? 'error'
-    : sculptNoResources ? 'no_resources'
-    : !sculptServiceFound ? 'not_found'
+    : !serviceResolved ? 'not_found'
     : 'ok';
+
+  // Visitor-facing label for the read-only Service field. IV / AIWO Sculpt book a
+  // First General Physician consultation, so the field must say that — not the
+  // treatment name — to match what is actually being booked.
+  const routeServiceLabel =
+    routeType === "posture" ? "Posture Screening"
+    : routeType === "rmr" ? "RMR Test"
+    : routeType === "vo2" ? "VO2 Max Test"
+    : (routeType === "sculpt" || routeType === "ivTherapy") ? FIRST_GP_LABEL
+    : "";
 
   const formContent = (
     <div className="bg-white text-black border border-border p-8 md:p-12 relative overflow-hidden h-full">
@@ -782,17 +790,11 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
                     <Label className="font-mono text-xs text-muted-foreground uppercase">Service</Label>
                     {routeType !== "none" ? (
                       <div className="rounded-none border border-border h-12 bg-muted/50 flex items-center px-3 text-sm text-foreground overflow-hidden whitespace-nowrap text-ellipsis">
-                        {routeType === "posture"
-                          ? "Posture Screening"
-                          : routeType === "rmr"
-                            ? "RMR Test"
-                            : routeType === "vo2"
-                              ? "VO2 Max Test"
-                              : routeType === "sculpt"
-                                ? "AIWO Sculpt"
-                                : routeType === "ivTherapy"
-                                  ? "IV Therapy Consultation"
-                                  : ""}
+                        {serviceResolved
+                          ? routeServiceLabel
+                          : serviceConfigStatus === "loading"
+                            ? "Loading…"
+                            : "Unavailable"}
                       </div>
                     ) : (
                       <Select
@@ -816,41 +818,25 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
                 </div>
               </div>
 
-              {routeType === 'sculpt' && sculptStatus !== 'idle' && sculptStatus !== 'ok' && (
+              {routeType !== 'none' && serviceConfigStatus !== 'idle' && serviceConfigStatus !== 'ok' && (
                 <div
-                  role={sculptStatus === 'loading' ? 'status' : 'alert'}
+                  role={serviceConfigStatus === 'loading' ? 'status' : 'alert'}
                   className={`flex items-start gap-2 p-3 border rounded text-sm ${
-                    sculptStatus === 'loading'
+                    serviceConfigStatus === 'loading'
                       ? 'text-muted-foreground bg-muted/50 border-border'
-                      : sculptStatus === 'no_resources'
-                        ? 'text-amber-700 bg-amber-50 border-amber-200'
-                        : 'text-destructive bg-destructive/10 border-destructive/20'
+                      : 'text-destructive bg-destructive/10 border-destructive/20'
                   }`}
                 >
-                  {sculptStatus === 'loading' ? (
+                  {serviceConfigStatus === 'loading' ? (
                     <>
                       <Loader2 className="w-4 h-4 mt-0.5 shrink-0 animate-spin" />
-                      Loading consultation availability…
+                      Loading booking availability…
                     </>
-                  ) : sculptStatus === 'error' ? (
+                  ) : serviceConfigStatus === 'not_found' ? (
                     <>
                       <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                       <span>
-                        We couldn't load consultation availability. Please try again.{' '}
-                        <button
-                          type="button"
-                          onClick={() => refetchServices()}
-                          className="underline font-medium hover:no-underline"
-                        >
-                          Retry
-                        </button>
-                      </span>
-                    </>
-                  ) : sculptStatus === 'not_found' ? (
-                    <>
-                      <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                      <span>
-                        Consultation booking is temporarily unavailable. Please try again or contact AIWO.{' '}
+                        This booking isn’t available right now. Please try again or contact AIWO.{' '}
                         <button
                           type="button"
                           onClick={() => refetchServices()}
@@ -863,7 +849,16 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
                   ) : (
                     <>
                       <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                      Consultation slots are currently unavailable. Please contact AIWO.
+                      <span>
+                        We couldn’t load booking availability right now. Please try again.{' '}
+                        <button
+                          type="button"
+                          onClick={() => refetchServices()}
+                          className="underline font-medium hover:no-underline"
+                        >
+                          Retry
+                        </button>
+                      </span>
                     </>
                   )}
                 </div>

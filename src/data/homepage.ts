@@ -203,7 +203,7 @@ export const catalogGroups: CatalogGroup[] = [
       {
         name: 'Mashing · Ashiatsu',
         description:
-          "Barefoot back-walking massage, steadied by overhead bars, for deep, broad release; AIWO Chennai's signature technique",
+          "Barefoot back-walking massage, steadied by overhead bars, for deep, broad release; an AIWO signature technique",
         venue: 'Bluxone Spa',
         duration: '60 min',
         price: '₹7,999',
