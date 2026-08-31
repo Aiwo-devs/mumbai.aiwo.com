@@ -221,7 +221,7 @@ export interface Testimonial {
   /** Short service/role framing shown under the name — never a location claim
    * (the Mumbai clinic is new; nothing here happened "at Fairmont Mumbai"). */
   context: string
-  service: 'iv-therapy' | 'posture-screening' | 'rmr' | 'ems-sculpting' | 'vo2-max'
+  service: 'iv-therapy' | 'posture-screening' | 'rmr' | 'ems-sculpting' | 'vo2-max' | 'sleepcation'
   /** Internal note on where this came from — not rendered. */
   source: string
   verified: boolean

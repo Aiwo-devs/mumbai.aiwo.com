@@ -21,6 +21,7 @@ const getServicePrice = (serviceName: string): number => {
   if (name.includes('posture')) return 4999
   if (name.includes('iv iron') || name.includes('mega glow') || name.includes('iv therapy')) return 1999
   if (name.includes('rmr')) return 4999
+  if (name.includes('sleepcation')) return 149000
   return 0
 }
 
@@ -32,6 +33,7 @@ const getServiceRedirectUrl = (serviceName: string): string => {
   if (name.includes('posture')) return '/services/posture-screening'
   if (name.includes('iv iron') || name.includes('mega glow') || name.includes('iv therapy')) return '/services/iv-therapy'
   if (name.includes('rmr')) return '/services/rmr'
+  if (name.includes('sleepcation')) return '/services/sleepcation'
   return '/' // Default fallback
 }
 
