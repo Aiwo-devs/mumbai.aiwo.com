@@ -62,19 +62,6 @@ const matchesFirstGeneralPhysician = (s: any) =>
   normalizeServiceCode(s?.code) === GP_CONSULTATION_CODE ||
   String(s?.name ?? '').toLowerCase().includes('general doctor consultation');
 
-// ── TEMPORARY: QA payment smoke test (reverted before production) ──────────────
-// Charges a real, LIVE ₹1 so a production payment can be verified end to end WITHOUT
-// touching any displayed catalogue price. Fail-closed and environment-pinned: it
-// activates ONLY on the dedicated QA branch deploy host, and never on the production
-// domain or anywhere else (production, deploy previews and localhost all keep the
-// real amount). Remove by reverting this commit — no prices are edited by hand.
-// The production domain is GOOGLE_ADS_PRODUCTION_HOSTNAME ('mumbai.aiwo.com'); this
-// QA host is a distinct string, so an exact match here can never be production.
-const QA_PAYMENT_SMOKE_HOST = 'qa-production-payment-smoke--mumbaiaiwo.netlify.app';
-const IS_QA_PAYMENT_SMOKE =
-  typeof window !== 'undefined' &&
-  window.location.hostname === QA_PAYMENT_SMOKE_HOST;
-
 // Public AIWO Mumbai (Fairmont) branch identifiers — not secrets. They scope
 // service/slot/appointment calls to the Mumbai branch on the healthportal backend.
 export const BRANCH_ID = 'b0a11c00-0000-4000-8000-000000000002';
@@ -519,10 +506,6 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
           else if (sName.includes('iv') || sName.includes('infusion')) amount = 14999;
         }
       }
-
-      // TEMPORARY QA payment smoke test (see IS_QA_PAYMENT_SMOKE). Overrides the
-      // CHARGE only — never the displayed catalogue price — and only on the QA host.
-      if (IS_QA_PAYMENT_SMOKE) amount = 1;
 
       // Format date for notes (DD-MM-YYYY)
       const [yr, mo, dy] = formData.date.split('-');
