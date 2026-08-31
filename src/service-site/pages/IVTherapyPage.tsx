@@ -3,7 +3,7 @@ import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
-import { BookingForm } from "@/components/sections/BookingForm";
+import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -644,7 +644,7 @@ function BookingIntake() {
           {/* Right — real booking + payment form */}
           <div className="lg:col-span-6 lg:col-start-7">
             <Reveal delay={0.06}>
-              <BookingForm isInline={true} />
+              <ServiceBookingWidget />
             </Reveal>
           </div>
         </div>

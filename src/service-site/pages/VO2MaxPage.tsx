@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/sections/Footer";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import vo2TestingImg from "@/assets/09-Vo2maxtesting_1781348570353.webp";
-import { BookingForm } from "@/components/sections/BookingForm";
+import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
 import { Navigation } from "@/components/sections/Navigation";
 
@@ -710,7 +710,7 @@ function BookingSection() {
           </div>
 
           <div className="lg:col-span-6 lg:col-start-7">
-            <BookingForm isInline={true} />
+            <ServiceBookingWidget />
           </div>
         </div>
       </div>

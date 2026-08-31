@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/sections/Footer";
-import { BookingForm } from "@/components/sections/BookingForm";
+import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { ArrowRight, Check } from "lucide-react";
 import { MetaTags } from "@/components/MetaTags";
 import { Navigation } from "@/components/sections/Navigation";
@@ -705,7 +705,7 @@ function Book() {
           </div>
 
           <div className="lg:col-span-7">
-            <BookingForm isInline={true} />
+            <ServiceBookingWidget />
           </div>
         </div>
       </div>

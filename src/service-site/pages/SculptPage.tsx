@@ -3,7 +3,7 @@ import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
-import { BookingForm } from "@/components/sections/BookingForm";
+import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -743,7 +743,7 @@ function Intake() {
           </div>
 
           <div className="lg:col-span-6 lg:col-start-7">
-            <BookingForm isInline />
+            <ServiceBookingWidget />
             <div className="mt-4 text-center">
               <span className="font-mono text-[11px] text-muted-foreground tracking-widest">Prefer to call? </span>
               <a

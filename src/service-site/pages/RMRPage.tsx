@@ -5,7 +5,7 @@ import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import rmrTestingImg from "@/assets/08-RMRTesting_1781241418139.webp";
-import { BookingForm } from "@/components/sections/BookingForm";
+import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
 
 const scrollTo = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -921,7 +921,7 @@ export default function RMRPage() {
         <HowItWorks />
         <WhoItsFor />
         <Testimonials />
-        <BookingForm />
+        <ServiceBookingWidget />
         <FAQ />
       </main>
       <Footer />

@@ -1,0 +1,340 @@
+/* ServiceBooking widget — styled for the Mumbai service-site theme (sharp
+   black/white, monospaced labels). All selectors are scoped under .service-site
+   so the frozen homepage and the rest of the site are unaffected. Self-contained
+   values (no external design tokens) — the add-booking token names don't exist
+   in this project. */
+
+.service-site .service-booking-widget {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  padding: 2rem 2rem;
+  max-width: 680px;
+  margin: 0 auto;
+  color: #171717;
+}
+
+/* Stepper */
+.service-site .booking-stepper-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.service-site .step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: #f5f5f5;
+  color: #737373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-shadow: inset 0 0 0 1px #e5e5e5;
+  transition: all 0.3s ease;
+}
+
+.service-site .step-dot.active {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.service-site .step-line {
+  height: 1px;
+  flex: 1;
+  background: #e5e5e5;
+  margin: 0 12px;
+}
+
+/* Headers */
+.service-site .booking-step__header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.service-site .btn-back {
+  background: transparent;
+  border: none;
+  color: #737373;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.4rem 0.6rem;
+  transition: color 0.2s ease;
+}
+
+.service-site .btn-back:hover:not(:disabled) {
+  color: #000000;
+}
+
+.service-site .btn-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.service-site .booking-step__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: #171717;
+}
+
+.service-site .booking-step__desc {
+  color: #737373;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Consultation type radios */
+.service-site .booking-consultation-type {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.service-site .booking-consultation-type__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #737373;
+}
+
+.service-site .booking-consultation-type__options {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.service-site .booking-consultation-type__option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #171717;
+}
+
+/* Date & Slot Selection */
+.service-site .booking-date-picker {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.service-site .booking-date-picker label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #737373;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.service-site .booking-date-picker input[type='date'] {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #e5e5e5;
+  font-size: 0.875rem;
+  color: #171717;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.service-site .booking-date-picker input[type='date']:focus {
+  outline: none;
+  border-color: #000000;
+}
+
+.service-site .slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.service-site .slot-card {
+  padding: 0.55rem 0.5rem;
+  border: 1px solid #e5e5e5;
+  background: #ffffff;
+  color: #171717;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+}
+
+.service-site .slot-card:hover {
+  border-color: #000000;
+  background: #f5f5f5;
+}
+
+.service-site .slot-card.selected {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+/* Patient Details Form */
+.service-site .booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.service-site .form-group-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.service-site .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.service-site .form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #737373;
+}
+
+.service-site .form-input {
+  padding: 0.65rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  color: #171717;
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.service-site .form-input:focus {
+  outline: none;
+  border-color: #000000;
+}
+
+.service-site select.form-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+}
+
+.service-site .form-submit {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.85rem;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.service-site .form-submit:hover:not(:disabled) {
+  background: #262626;
+}
+
+.service-site .form-submit:disabled {
+  background: #a3a3a3;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Summary */
+.service-site .booking-summary-card {
+  background: #f5f5f5;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.service-site .summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px dashed #d4d4d4;
+  padding-bottom: 0.75rem;
+}
+
+.service-site .summary-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.service-site .summary-label {
+  color: #737373;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.service-site .summary-value {
+  font-weight: 600;
+  text-align: right;
+  color: #171717;
+  font-size: 0.85rem;
+}
+
+/* Utility states */
+.service-site .booking-loading,
+.service-site .booking-error,
+.service-site .booking-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #737373;
+  background: #f5f5f5;
+  font-size: 0.875rem;
+}
+
+.service-site .booking-error {
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.05);
+  border: 1px solid rgba(180, 83, 9, 0.2);
+}
+
+.service-site .booking-success {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.service-site .booking-success p {
+  color: #737373;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .service-site .service-booking-widget {
+    padding: 1.5rem;
+  }
+
+  .service-site .form-group-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .service-site .booking-stepper-indicator {
+    padding: 0;
+  }
+}
