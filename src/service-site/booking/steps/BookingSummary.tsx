@@ -258,7 +258,7 @@ export function BookingSummary({ state, dispatch, serviceCode, landingPage }: Bo
         appointment_type: 1,
         consustant_type: state.isOnline ? 2 : 1,
         branch_id: BRANCH_ID,
-        redirect_url: window.location.origin + getServiceRedirectUrl(serviceName),
+        redirect_url: window.location.origin + '/payment/success',
         ...(state.isOnline ? { appointment_type_for: 'video', meeting_provider: 'google_meet' } : {}),
       };
 
