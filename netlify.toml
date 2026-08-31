@@ -15,6 +15,25 @@
   targetPort = 5173
   port = 8888
 
+# Production same-origin API transport. On the production host the browser calls
+# same-origin /api and /auth-api; Netlify proxies (status 200 rewrite, server-side)
+# these to the healthportal booking and auth upstreams. This is the proven
+# shop.aiwo.com production architecture — no backend host or secret ever reaches
+# browser code, and there is no cross-origin CORS dependency. Non-production hosts
+# use the Netlify Function proxies instead (see [functions] above). These MUST come
+# before the SPA catch-all below — Netlify evaluates redirects top-to-bottom.
+[[redirects]]
+  from = "/api/*"
+  to = "https://healthcationapi.aiwohealth.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/auth-api/*"
+  to = "https://auth.aiwohealth.com/api/auth/:splat"
+  status = 200
+  force = true
+
 # Client-side routing (react-router-dom) — without this, a direct load or
 # refresh on any route other than "/" (e.g. /services/iv-therapy) 404s,
 # since there's no matching file on disk for Netlify to serve.
