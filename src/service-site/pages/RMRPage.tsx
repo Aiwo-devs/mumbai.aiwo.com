@@ -921,7 +921,11 @@ export default function RMRPage() {
         <HowItWorks />
         <WhoItsFor />
         <Testimonials />
-        <ServiceBookingWidget />
+        <section id="book" className="py-12 lg:py-20 bg-white border-b border-border scroll-mt-24">
+          <div className="container mx-auto px-6 max-w-7xl">
+            <ServiceBookingWidget />
+          </div>
+        </section>
         <FAQ />
       </main>
       <Footer />
