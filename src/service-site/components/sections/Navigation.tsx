@@ -23,6 +23,7 @@ const defaultLinks: NavSection[] = [
   { label: "RMR Test", href: "/services/rmr" },
   { label: "AIWO Sculpt", href: "/services/ems-sculpting" },
   { label: "VO2 Max Test", href: "/services/vo2-max" },
+  { label: "Sleepcation", href: "/services/sleepcation" },
 ];
 
 export function Navigation({

@@ -13,11 +13,21 @@ const scrollTo = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 };
 
-// Sleepcation is a Fairmont Mumbai programme; enquiries and booking are handled by
-// the Fairmont Spa & Longevity desk, so the page routes to that number rather than
-// the clinical booking form used by the single-service pages.
-const ENQUIRY_PHONE_DISPLAY = "+91 80975 22259";
-const ENQUIRY_PHONE_HREF = "tel:+918097522259";
+// AIWO Sleepcation offers two parallel conversion paths (see BookingSection):
+//   1. Book the Programme — begins a clinically-gated booking. Per the programme
+//      terms, a mandatory AIWO medical screening is completed before the booking is
+//      confirmed and BEFORE any payment is taken, so the reserve action routes the
+//      guest to the AIWO clinical desk to start screening and lock dates. There is no
+//      self-serve online checkout for Sleepcation today: the MUM booking catalogue has
+//      no resourced Sleepcation service and no direct package-payment link exists, so
+//      wiring a live "Pay now" button would be fabricated. When a resourced Sleepcation
+//      service (with occupancy pricing + availability) or a package payment link is
+//      provisioned, the primary CTA upgrades to that mechanism with no copy change.
+//   2. Speak to AIWO — an enquiry path for guests who want help deciding first.
+// Both paths use the verified public Mumbai contact below.
+const ENQUIRY_PHONE_DISPLAY = "+91 89258 14525";
+const ENQUIRY_PHONE_HREF = "tel:+918925814525";
+const ENQUIRY_WHATSAPP = "https://wa.me/918925814525";
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -68,30 +78,40 @@ function Hero() {
               </p>
             </Reveal>
             <Reveal delay={0.3}>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <Button asChild className="bg-black hover:bg-black/90 text-white rounded-none h-14 px-8 font-medium text-base">
-                  <a href="#book" onClick={scrollTo("book")} className="inline-flex items-center gap-2">
-                    Book the Offer <ArrowRight className="w-5 h-5" />
-                  </a>
-                </Button>
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                  <Button asChild className="bg-black hover:bg-black/90 text-white rounded-none h-14 px-8 font-medium text-base">
+                    <a href="#book" onClick={scrollTo("book")} className="inline-flex items-center justify-center gap-2">
+                      Book the Programme <ArrowRight className="w-5 h-5 shrink-0" />
+                    </a>
+                  </Button>
+                  <Button asChild className="bg-white hover:bg-muted text-foreground border border-foreground rounded-none h-14 px-8 font-medium text-base">
+                    <a href={ENQUIRY_WHATSAPP} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2">
+                      Speak to AIWO
+                    </a>
+                  </Button>
+                </div>
                 <div className="flex flex-col">
-                  <div className="flex items-baseline gap-3">
+                  <div className="flex items-baseline gap-3 flex-wrap">
                     <span className="font-serif text-3xl text-foreground">₹1,49,000++</span>
                     <span className="font-mono text-xs font-bold border border-foreground px-2 py-1">PER PROGRAMME</span>
                   </div>
                   <span className="text-xs text-muted-foreground mt-1 font-mono tracking-wide">
-                    Two nights · three days · one guest
+                    Two nights · three days · one guest · double occupancy from ₹2,25,000++
                   </span>
                 </div>
               </div>
             </Reveal>
             <Reveal delay={0.35}>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                  Reserve your dates, or talk it through with a clinician first.
+                </span>
                 <a
                   href={ENQUIRY_PHONE_HREF}
-                  className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                  className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground hover:opacity-60 transition-opacity"
                 >
-                  Enquire via Fairmont Spa &amp; Longevity <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                  Call {ENQUIRY_PHONE_DISPLAY} <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                 </a>
               </div>
             </Reveal>
@@ -452,7 +472,7 @@ function Rates() {
 
         <Button asChild className="bg-white text-black hover:bg-white/90 rounded-none h-14 px-8 font-medium text-base">
           <a href="#book" onClick={scrollTo("book")} className="inline-flex items-center gap-2">
-            Book the Offer <ArrowRight className="w-5 h-5" />
+            Book the Programme <ArrowRight className="w-5 h-5" />
           </a>
         </Button>
       </div>
@@ -595,33 +615,92 @@ function FAQ() {
   );
 }
 
-// ─── FINAL CTA ── Peak-End + consequence of delay, dignified ─────────────────────
-function FinalCta() {
+// ─── BOOKING ── Two parallel paths: Book (ready to proceed) + Speak to AIWO (help) ─
+function BookingSection() {
+  const steps = [
+    "Tell us your preferred dates and complete a short AIWO medical screening.",
+    "AIWO arranges your AIWO 100+ blood test, taken before you travel.",
+    "Your dates are confirmed and payment is taken — only after screening clears.",
+  ];
   return (
     <section id="book" className="py-16 lg:py-28 bg-black text-white border-b border-black scroll-mt-24">
       <div className="container mx-auto px-6 max-w-7xl">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl mb-10 lg:mb-14">
           <div className="font-mono text-xs uppercase tracking-widest text-white/50 mb-6">Begin</div>
           <h2 className="font-serif text-4xl lg:text-6xl leading-[1.03] text-white mb-6">
             You'll sleep tonight either way. <span className="italic text-white/60">The question is whether you'll know what it did.</span>
           </h2>
-          <p className="text-white/70 text-lg leading-relaxed mb-4 max-w-2xl">
-            Two nights at Fairmont Mumbai turn your sleep from a guess into a record you can act on. Booking begins with a short medical screening; where the programme is not appropriate, it is released without charge.
+          <p className="text-white/70 text-lg leading-relaxed max-w-2xl">
+            Two nights at Fairmont Mumbai turn your sleep from a guess into a record you can act on — whether you're ready to reserve your dates now, or want to talk it through first.
           </p>
-          <p className="text-white/50 text-base leading-relaxed mb-10 max-w-2xl">
-            From ₹1,49,000++ per programme · two nights, three days · Fairmont Mumbai.
-          </p>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <Button asChild className="bg-white text-black hover:bg-white/90 rounded-none h-auto min-h-14 sm:h-14 px-8 py-3 sm:py-0 font-medium text-base whitespace-normal w-full sm:w-auto">
-              <a href={ENQUIRY_PHONE_HREF} className="inline-flex items-center justify-center gap-2 text-center">
-                Enquire &amp; Book <ArrowRight className="w-5 h-5 shrink-0" />
-              </a>
-            </Button>
-            <div className="font-mono text-sm text-white/70 tracking-widest">
-              Fairmont Spa &amp; Longevity ·{" "}
-              <a href={ENQUIRY_PHONE_HREF} className="text-white hover:text-white/70 transition-colors">{ENQUIRY_PHONE_DISPLAY}</a>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          {/* PRIMARY — ready to proceed */}
+          <div className="border border-white/20 bg-white/[0.03] p-6 lg:p-8 flex flex-col">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-white/40 mb-4">Ready to proceed</div>
+            <h3 className="font-serif text-2xl lg:text-3xl text-white mb-3">Book the Programme</h3>
+            <div className="flex items-baseline gap-3 flex-wrap mb-1">
+              <span className="font-serif text-3xl text-white">₹1,49,000++</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">single occupancy</span>
+            </div>
+            <div className="flex items-baseline gap-3 flex-wrap mb-5">
+              <span className="font-serif text-xl text-white/80">₹2,25,000++</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">double occupancy</span>
+            </div>
+            <p className="text-white/50 text-[14px] leading-relaxed mb-6">
+              Reserve your dates with the AIWO clinical team. Booking begins with a short medical screening; where the programme is not appropriate, it is released without charge, and payment is taken only once screening clears.
+            </p>
+            <div className="mt-auto flex flex-col sm:flex-row gap-3">
+              <Button asChild className="bg-white text-black hover:bg-white/90 rounded-none h-auto min-h-14 sm:h-14 px-6 py-3 sm:py-0 font-medium text-base whitespace-normal flex-1">
+                <a href={ENQUIRY_WHATSAPP} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 text-center">
+                  Reserve on WhatsApp <ArrowRight className="w-5 h-5 shrink-0" />
+                </a>
+              </Button>
+              <Button asChild className="bg-transparent text-white hover:bg-white/10 border border-white/40 rounded-none h-auto min-h-14 sm:h-14 px-6 py-3 sm:py-0 font-medium text-base whitespace-normal flex-1">
+                <a href={ENQUIRY_PHONE_HREF} className="inline-flex items-center justify-center gap-2 text-center">
+                  Call to reserve
+                </a>
+              </Button>
             </div>
           </div>
+
+          {/* SECONDARY — help deciding */}
+          <div className="border border-white/20 p-6 lg:p-8 flex flex-col">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-white/40 mb-4">Talk to a clinician first</div>
+            <h3 className="font-serif text-2xl lg:text-3xl text-white mb-3">Speak to AIWO</h3>
+            <p className="text-white/50 text-[14px] leading-relaxed mb-6">
+              This is bespoke clinical medicine, and a conversation with the AIWO team is part of the service, not a hurdle before it. Ask what the two nights measure, whether it's right for you, or how the screening works — and we'll tailor the programme around your answers.
+            </p>
+            <div className="mt-auto flex flex-col sm:flex-row gap-3">
+              <Button asChild className="bg-transparent text-white hover:bg-white/10 border border-white/40 rounded-none h-auto min-h-14 sm:h-14 px-6 py-3 sm:py-0 font-medium text-base whitespace-normal flex-1">
+                <a href={ENQUIRY_WHATSAPP} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 text-center">
+                  Message on WhatsApp
+                </a>
+              </Button>
+              <Button asChild className="bg-transparent text-white hover:bg-white/10 border border-white/40 rounded-none h-auto min-h-14 sm:h-14 px-6 py-3 sm:py-0 font-medium text-base whitespace-normal flex-1">
+                <a href={ENQUIRY_PHONE_HREF} className="inline-flex items-center justify-center gap-2 text-center">
+                  Call {ENQUIRY_PHONE_DISPLAY}
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* How booking works — screening-first, dignified */}
+        <div className="border-t border-white/10 pt-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-white/40 mb-6">How booking works</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {steps.map((s, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="font-serif text-2xl leading-none text-white/30">{i + 1}</span>
+                <p className="text-white/60 text-[14px] leading-relaxed">{s}</p>
+              </div>
+            ))}
+          </div>
+          <p className="font-mono text-[11px] text-white/40 tracking-wide mt-8">
+            From ₹1,49,000++ per programme · two nights, three days · Fairmont Mumbai · exclusive of applicable taxes, shown in full before any payment is taken.
+          </p>
         </div>
       </div>
     </section>
@@ -688,7 +767,7 @@ export default function SleepcationPage() {
           { label: "Rates", href: "#rates" },
           { label: "FAQ", href: "#faq" },
         ]}
-        ctaLabel="Book the Offer"
+        ctaLabel="Book the Programme"
       />
       <main className="pt-0 md:pt-[80px]">
         <Hero />
@@ -702,7 +781,7 @@ export default function SleepcationPage() {
         <BeforeYouBook />
         <GoodToKnow />
         <FAQ />
-        <FinalCta />
+        <BookingSection />
         <Terms />
       </main>
       <Footer />

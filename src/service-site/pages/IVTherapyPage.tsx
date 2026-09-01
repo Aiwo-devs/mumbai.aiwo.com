@@ -9,7 +9,7 @@ import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 
 /* ─────────────────────────────────────────────────────────────────
    Constants
-   Public contact WA/phone: +91 91500 48626 (verified)
+   Public contact WA/phone: +91 89258 14525 (verified)
 ───────────────────────────────────────────────────────────────── */
 
 

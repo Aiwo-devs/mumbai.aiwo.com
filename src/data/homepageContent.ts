@@ -2,7 +2,7 @@
 // AIWO Mumbai homepage — brand/longevity content.
 // Source of truth: AIWO_Mumbai_Homepage.md. Mumbai-only: every visitor-facing
 // Chennai reference in the source (trust strip "Chennai & Mumbai"; footer Chennai
-// address) is intentionally stripped here. Phone +91 91500 48626 is the confirmed
+// address) is intentionally stripped here. Phone +91 89258 14525 is the confirmed
 // AIWO number. The single CTA verb is "Book a Consultation".
 // This module is consumed only by src/service-site/pages/HomePage.tsx.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -11,8 +11,8 @@
 // first call" mechanism. No booking route is fabricated; the homepage routes to
 // the phone, and the frozen service pages keep their own online booking.
 export const CONTACT = {
-  phoneDisplay: '+91 91500 48626',
-  phoneHref: 'tel:+919150048626',
+  phoneDisplay: '+91 89258 14525',
+  phoneHref: 'tel:+918925814525',
   beginAnchor: '#begin',
 }
 

@@ -180,7 +180,7 @@ function Hero() {
             <Reveal delay={0.35}>
               <div className="mt-6">
                 <a
-                  href="https://wa.me/919150048626"
+                  href="https://wa.me/918925814525"
                   data-track="whatsapp-cta"
                   className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -585,7 +585,7 @@ function ValueEquation() {
                 </a>
               </Button>
               <a
-                href="https://wa.me/919150048626"
+                href="https://wa.me/918925814525"
                 className="flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white transition-colors mb-8"
               >
                 Message on WhatsApp <ArrowRight className="w-3 h-3" />
