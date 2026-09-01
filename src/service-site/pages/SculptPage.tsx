@@ -747,10 +747,10 @@ function Intake() {
             <div className="mt-4 text-center">
               <span className="font-mono text-[11px] text-muted-foreground tracking-widest">Prefer to call? </span>
               <a
-                href="tel:+918682086820"
+                href="tel:+919150048626"
                 className="font-mono text-[11px] text-foreground tracking-widest underline underline-offset-4 hover:opacity-60"
               >
-                +91 86820 86820 →
+                +91 91500 48626 →
               </a>
             </div>
           </div>
@@ -814,7 +814,7 @@ function FAQSection() {
               Everything you want to know before booking.
             </h2>
             <a
-              href="tel:+918682086820"
+              href="tel:+919150048626"
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground underline underline-offset-4 hover:text-foreground"
             >
               More questions? Call us →

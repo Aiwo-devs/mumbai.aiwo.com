@@ -9,7 +9,7 @@ import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 
 /* ─────────────────────────────────────────────────────────────────
    Constants
-   AIWO-OPEN-FLAG-1: Confirm WA number +91 86820 86820 with Ops
+   Public contact WA/phone: +91 91500 48626 (verified)
 ───────────────────────────────────────────────────────────────── */
 
 
