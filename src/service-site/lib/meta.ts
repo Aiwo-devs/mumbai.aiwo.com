@@ -1,8 +1,11 @@
-// Meta Pixel (browser) helpers.
-// PORT NOTE: the Meta Pixel bootstrap script (fbq init + PageView) is NOT
-// included in this Mumbai build's index.html, so window.fbq is always
-// undefined here and trackMeta's pixel call is always a no-op — only the
-// PostHog mirror (itself also a no-op on this build, see posthog.ts) runs.
+// Meta Pixel (browser) helpers — the single canonical wrapper around window.fbq.
+// The Pixel bootstrap (loader + fbq('init', ID), no PageView) lives in
+// index.html; PageView and all conversion events are fired through the helpers
+// below so there is exactly one code path to Meta. Every helper is a safe no-op
+// when window.fbq is absent (ad blocker / not yet loaded / SSR), so tracking can
+// never crash the UI or the booking flow. Each call also mirrors into PostHog
+// (see posthog.ts) independently of fbq availability, so an ad blocker on one
+// tool doesn't suppress the other.
 import { mirrorMetaEventToPostHog } from "./posthog.ts";
 
 declare global {
@@ -11,21 +14,48 @@ declare global {
   }
 }
 
-/**
- * Fire a standard Meta Pixel event. No-op (for the pixel call) if fbq isn't
- * present. Every call also mirrors into PostHog (see posthog.ts) — mirroring
- * runs independently of fbq's own availability so an ad blocker on one tool
- * doesn't suppress the other. Meta Pixel behavior itself is unchanged.
- */
-export function trackMeta(event: string, params?: Record<string, unknown>): void {
+/** Optional per-call options. `eventID` is Meta's dedup key (also the future CAPI join key); it is opaque and must never carry PII. */
+export interface MetaEventOptions {
+  eventID?: string;
+}
+
+function fire(method: "track" | "trackCustom", event: string, params?: Record<string, unknown>, options?: MetaEventOptions): void {
   if (typeof window !== "undefined" && typeof window.fbq === "function") {
     try {
-      window.fbq("track", event, params || {});
+      if (options?.eventID) {
+        window.fbq(method, event, params || {}, { eventID: options.eventID });
+      } else {
+        window.fbq(method, event, params || {});
+      }
     } catch {
       /* never let tracking break the UI */
     }
   }
+  // Mirror standard-event names into PostHog (custom names are ignored by the map).
   mirrorMetaEventToPostHog(event, params);
+}
+
+/** Fire a Meta STANDARD event (PageView, ViewContent, Contact, InitiateCheckout, …). */
+export function trackMetaStandard(event: string, params?: Record<string, unknown>, options?: MetaEventOptions): void {
+  fire("track", event, params, options);
+}
+
+/** Fire a Meta CUSTOM event (BookingCTA, BookingFormStart, PaymentReturn, …) via fbq('trackCustom'). */
+export function trackMetaCustom(event: string, params?: Record<string, unknown>, options?: MetaEventOptions): void {
+  fire("trackCustom", event, params, options);
+}
+
+/** Fire a PageView. Called once per rendered route by the SPA route tracker. */
+export function trackMetaPageView(): void {
+  fire("track", "PageView");
+}
+
+/**
+ * Backward-compatible standard-event alias. Retained so existing importers keep
+ * working; new code should call trackMetaStandard / trackMetaCustom directly.
+ */
+export function trackMeta(event: string, params?: Record<string, unknown>): void {
+  trackMetaStandard(event, params);
 }
 
 /** Read a cookie value by name (browser only). Name is regex-escaped. */

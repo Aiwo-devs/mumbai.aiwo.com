@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { MetaAnalytics } from './analytics/MetaAnalytics'
 
 // Each route is its own chunk, including the specific service's data (long
 // FAQ/pricing/testimonial content) — visiting one page no longer downloads
@@ -18,6 +19,7 @@ const PaymentSuccessRoute = lazy(() => import('./routes/PaymentSuccessRoute'))
 function App() {
   return (
     <BrowserRouter>
+      <MetaAnalytics />
       <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<HomeRoute />} />

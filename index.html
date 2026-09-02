@@ -21,6 +21,30 @@
       content="Movement health & longevity medicine at Fairmont Mumbai — physiotherapy, diagnostics and IV therapy, without leaving the hotel."
     />
     <meta property="og:url" content="https://mumbai.aiwo.com/" />
+    <!-- Meta Pixel — bootstrap + init ONLY. The initial fbq('track','PageView')
+         is intentionally NOT fired here: this is a react-router SPA, so PageView
+         (initial load AND every client-side route change) is owned by the
+         MetaAnalytics route tracker (src/analytics/MetaAnalytics.tsx) to
+         guarantee exactly one PageView per view with no init+route double-fire.
+         Loading init here (rather than from JS) sets the _fbp / _fbc first-party
+         attribution cookies as early as possible. Advanced Matching is OFF — no
+         email/phone is ever passed to fbq('init'). Pixel ID is public config;
+         this is the single source of truth for it. -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '982130547954055');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=982130547954055&ev=PageView&noscript=1"
+      alt="" /></noscript>
+    <!-- End Meta Pixel -->
     <!-- Ported service pages (src/service-site) render inside .service-site
          and use Plus Jakarta Sans / Space Mono via --app-font-sans /
          --app-font-mono — loaded here exactly as the source project's own

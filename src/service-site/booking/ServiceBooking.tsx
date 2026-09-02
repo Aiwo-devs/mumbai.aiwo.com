@@ -1,8 +1,9 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useRef } from 'react';
 import { bookingReducer, initialBookingState } from './bookingReducer';
 import { SlotSelection } from './steps/SlotSelection';
 import { PatientDetailsForm } from './steps/PatientDetails';
 import { BookingSummary } from './steps/BookingSummary';
+import { trackBookingFormStart } from '@/lib/metaEvents';
 import './ServiceBooking.css';
 
 interface ServiceBookingProps {
@@ -22,6 +23,18 @@ export function ServiceBooking({ serviceId, serviceName, serviceCode, landingPag
   useEffect(() => {
     dispatch({ type: 'SET_SERVICE_CONTEXT', payload: { serviceId, serviceName } });
   }, [serviceId, serviceName]);
+
+  // Meta BookingFormStart — fired once, the first time the user genuinely engages
+  // the widget (their first slot selection: state.slot goes null → set). The
+  // widget is embedded and mounts pre-populated, so mount/viewport is NOT a start;
+  // idle date-picker browsing without a selection is deliberately not counted.
+  const bookingStartFired = useRef(false);
+  useEffect(() => {
+    if (!bookingStartFired.current && state.slot) {
+      bookingStartFired.current = true;
+      trackBookingFormStart();
+    }
+  }, [state.slot]);
 
   const renderStep = () => {
     switch (state.step) {

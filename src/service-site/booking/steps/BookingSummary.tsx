@@ -10,6 +10,7 @@ import {
   type BookingLeadInput,
 } from '@/lib/bookingSheet';
 import { capturePostHogEvent } from '@/lib/posthog';
+import { trackInitiateCheckout, newEventId } from '@/lib/metaEvents';
 
 interface BookingSummaryProps {
   state: BookingState;
@@ -273,6 +274,14 @@ export function BookingSummary({ state, dispatch, serviceCode, landingPage }: Bo
           currency: 'INR',
           environment,
         });
+        // ── Meta InitiateCheckout — the strongest proven pre-payment signal. Fired
+        // only now that the backend returned a valid checkout_url, immediately
+        // before handing off to Razorpay. `amount` is the proven getServicePrice
+        // charge (never inferred from UI text); the eventID dedups a
+        // refresh/back/double-confirm and seeds future CAPI dedup. No PII, no
+        // order id sent. Wrapped defensively by the helper so it can never block
+        // the redirect below. ── //
+        trackInitiateCheckout(amount, newEventId());
         try {
           localStorage.setItem(
             'aiwo_purchase_meta',
