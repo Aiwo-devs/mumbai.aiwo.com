@@ -40,10 +40,17 @@ export function SlotSelection({ state, dispatch }: SlotSelectionProps) {
 
     const fetchSlots = async () => {
       if (!state.serviceId) return;
+
+      const todayStr = formatDate(new Date());
+      const effectiveDate = selectedDate < todayStr ? todayStr : selectedDate;
+      if (selectedDate < todayStr) {
+        setSelectedDate(todayStr);
+      }
+
       setLoading(true);
       setError(null);
       try {
-        const data = await bookingService.getServiceAvailableSlots(state.serviceId, selectedDate);
+        const data = await bookingService.getServiceAvailableSlots(state.serviceId, effectiveDate);
         if (isMounted) setSlots(data || []);
       } catch (err: any) {
         if (isMounted) setError(err.message || 'Failed to load availability');
@@ -69,12 +76,37 @@ export function SlotSelection({ state, dispatch }: SlotSelectionProps) {
   }, [slots, state.isOnline, dispatch]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(e.target.value);
+    const todayStr = formatDate(new Date());
+    if (e.target.value < todayStr) {
+      setSelectedDate(todayStr);
+    } else {
+      setSelectedDate(e.target.value);
+    }
   };
 
   const handleSelectSlot = (slot: Slot) => {
     dispatch({ type: 'SELECT_SLOT', payload: slot });
   };
+
+  const filteredSlots = slots.filter((slot) => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
+    if (selectedDate < todayStr) return false;
+    if (selectedDate > todayStr) return true;
+
+    const [hourStr, minStr] = slot.start_time.split(':');
+    const slotHour = parseInt(hourStr, 10);
+    const slotMin = parseInt(minStr, 10);
+    if (slotMin !== 0 && slotMin !== 30) return false;
+
+    const slotTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slotHour, slotMin, 0, 0);
+
+    return slotTime > now;
+  });
 
   return (
     <div className="booking-step">
@@ -95,7 +127,7 @@ export function SlotSelection({ state, dispatch }: SlotSelectionProps) {
         />
       </div>
 
-      {!loading && !error && slots.some((s) => s.hasDoctor) && (
+      {!loading && !error && filteredSlots.some((s) => s.hasDoctor) && (
         <div className="booking-consultation-type">
           <label className="booking-consultation-type__label">Consultation Type</label>
           <div className="booking-consultation-type__options">
@@ -124,13 +156,13 @@ export function SlotSelection({ state, dispatch }: SlotSelectionProps) {
       {loading && <div className="booking-loading">Loading available slots...</div>}
       {error && <div className="booking-error">{error}</div>}
 
-      {!loading && !error && slots.length === 0 && (
+      {!loading && !error && filteredSlots.length === 0 && (
         <div className="booking-empty">No availability on this date. Please select another date.</div>
       )}
 
-      {!loading && !error && slots.length > 0 && (
+      {!loading && !error && filteredSlots.length > 0 && (
         <div className="slot-grid">
-          {slots.map((slot) => {
+          {filteredSlots.map((slot) => {
             const isSelected = state.slot?.id === slot.id;
             return (
               <button

@@ -81,6 +81,15 @@ export const bookingService = {
         while (i < sorted.length - 1) {
           const slot1 = sorted[i];
           const slot2 = sorted[i + 1];
+
+          // Only form 30-minute slots that start on the hour (:00) or half-hour (:30)
+          const [, startM] = slot1.start_time.split(':');
+          const min = parseInt(startM, 10);
+          if (min !== 0 && min !== 30) {
+            i += 1;
+            continue;
+          }
+
           if (slot1.end_time === slot2.start_time) {
             const timeKey = `${slot1.start_time}-${slot2.end_time}`;
             if (!seenTimes.has(timeKey)) {
@@ -102,7 +111,42 @@ export const bookingService = {
         }
       }
 
-      return allCombinedSlots.sort((a, b) => a.start_time.localeCompare(b.start_time));
+      const validSlots = allCombinedSlots.filter((slot) => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+
+        let targetDateStr = date || payload.date || '';
+        if (targetDateStr.includes('T')) {
+          targetDateStr = targetDateStr.split('T')[0];
+        }
+        const match = targetDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+          targetDateStr = `${match[1]}-${match[2]}-${match[3]}`;
+        } else if (targetDateStr) {
+          const parsed = new Date(targetDateStr);
+          if (!isNaN(parsed.getTime())) {
+            const pYear = parsed.getFullYear();
+            const pMonth = String(parsed.getMonth() + 1).padStart(2, '0');
+            const pDay = String(parsed.getDate()).padStart(2, '0');
+            targetDateStr = `${pYear}-${pMonth}-${pDay}`;
+          }
+        }
+
+        if (targetDateStr < todayStr) return false;
+        if (targetDateStr > todayStr) return true;
+
+        const [hourStr, minStr] = slot.start_time.split(':');
+        const slotHour = parseInt(hourStr, 10);
+        const slotMin = parseInt(minStr, 10);
+        const slotTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slotHour, slotMin, 0, 0);
+
+        return slotTime > now;
+      });
+
+      return validSlots.sort((a, b) => a.start_time.localeCompare(b.start_time));
     }
 
     return [];
