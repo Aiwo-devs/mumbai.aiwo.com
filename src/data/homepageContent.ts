@@ -29,7 +29,6 @@ export const homeMeta = {
 // ─── Hero (§ masthead + hero) ────────────────────────────────────────────────
 export const hero = {
   eyebrow: 'An Integrated Longevity Clinic · Now in Mumbai',
-  brandLine: 'AIWO — Live Longer. Live Younger.',
   headline: 'Know your body. Then improve it.',
   lede: 'The most expensive thing you own is running down at a rate nobody has measured.',
   body: "AIWO measures how fast you're actually ageing, reads it as one picture, and builds the system that slows it down.",
