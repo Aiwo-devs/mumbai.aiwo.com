@@ -40,7 +40,7 @@ export const Reveal = ({
   };
 
   return (
-    <div ref={ref} style={{ width }} className={`relative overflow-hidden ${className}`}>
+    <div ref={ref} style={{ width }} className={`relative ${className}`}>
       <motion.div
         className="h-full"
         variants={variants}
