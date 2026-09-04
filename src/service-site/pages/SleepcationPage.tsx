@@ -701,15 +701,43 @@ function Terms() {
     "Fairmont Mumbai's booking conditions and Accor's Terms & Conditions of Services apply.",
   ];
 
+  // The full list is long and dominates the scroll. Show a short preview by
+  // default and let the guest expand the rest in place — the whole list stays on
+  // the page (nothing is hidden from those who want it), it just doesn't force a
+  // long scroll past legal small print to reach the footer.
+  const PREVIEW_COUNT = 6;
+  const [expanded, setExpanded] = useState(false);
+  const visibleTerms = expanded ? terms : terms.slice(0, PREVIEW_COUNT);
+  const hiddenCount = terms.length - PREVIEW_COUNT;
+
   return (
-    <section className="py-12 lg:py-16 bg-white border-b border-border">
+    <section id="terms" className="py-12 lg:py-16 bg-white border-b border-border">
       <div className="container mx-auto px-6 max-w-7xl">
         <SectionLabel n="10" label="Terms & Conditions" />
         <ol className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2 list-decimal pl-5 text-[13px] text-muted-foreground leading-relaxed">
-          {terms.map((t, i) => (
+          {visibleTerms.map((t, i) => (
             <li key={i}>{t}</li>
           ))}
         </ol>
+
+        {hiddenCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            className="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-foreground border-b border-foreground/40 pb-1 transition-colors hover:border-foreground"
+          >
+            {expanded ? (
+              <>
+                Show less <ChevronUp className="w-3.5 h-3.5" />
+              </>
+            ) : (
+              <>
+                Show all {terms.length} terms <ChevronDown className="w-3.5 h-3.5" />
+              </>
+            )}
+          </button>
+        )}
       </div>
     </section>
   );
