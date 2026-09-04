@@ -79,11 +79,6 @@ function Hero() {
                 {hero.eyebrow}
               </span>
             </Reveal>
-            <Reveal delay={0.06}>
-              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground block mb-5">
-                {hero.brandLine}
-              </span>
-            </Reveal>
             <Reveal delay={0.12}>
               <h1 className="font-serif text-[34px] sm:text-[50px] lg:text-[62px] leading-[1.02] tracking-tight text-foreground mb-6">
                 {hero.headline}
