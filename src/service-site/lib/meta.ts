@@ -14,6 +14,14 @@ declare global {
   }
 }
 
+/**
+ * Canonical Meta Pixel ID — the ONE source of truth for the JS side. Must stay in
+ * sync with the fbq('init', …) literal in index.html (both are '982130547954055').
+ * Forwarded (not fired) into Razorpay order notes so the server-side Purchase/CAPI
+ * can address the correct pixel. It is public config, never a secret.
+ */
+export const META_PIXEL_ID = "982130547954055";
+
 /** Optional per-call options. `eventID` is Meta's dedup key (also the future CAPI join key); it is opaque and must never carry PII. */
 export interface MetaEventOptions {
   eventID?: string;

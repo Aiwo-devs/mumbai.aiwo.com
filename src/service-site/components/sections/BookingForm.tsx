@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, addDays } from "date-fns";
 import { Loader2, AlertCircle } from "lucide-react";
-import { trackMeta, getFbCookies } from "@/lib/meta";
+import { trackMeta, getFbCookies, META_PIXEL_ID } from "@/lib/meta";
 import { captureBookingLead, markBookingApiFailed, markBookingPaymentInitiated, type BookingLeadInput } from "@/lib/bookingSheet";
 import { capturePostHogEvent } from "@/lib/posthog";
 
@@ -27,9 +27,9 @@ declare global {
   }
 }
 
-// Left blank until AIWO's own Meta Pixel / Google Ads IDs are provided; trackMeta()
-// and gtag() both no-op while these are empty.
-const META_PIXEL_ID = '';
+// META_PIXEL_ID now comes from the canonical central Meta util (@/lib/meta) so
+// there is exactly one Pixel ID source across the app. Google Ads send-to is left
+// blank until AIWO's own conversion ID is provided; gtag() no-ops while empty.
 const GOOGLE_ADS_CONVERSION_SEND_TO = '';
 // Gates production-only behavior (Google Ads conversion firing, TEST vs PRODUCTION
 // lead environment); off on every other host.

@@ -11,6 +11,7 @@ import {
 } from '@/lib/bookingSheet';
 import { capturePostHogEvent } from '@/lib/posthog';
 import { trackInitiateCheckout, newEventId } from '@/lib/metaEvents';
+import { getFbCookies, META_PIXEL_ID } from '@/lib/meta';
 
 interface BookingSummaryProps {
   state: BookingState;
@@ -235,6 +236,16 @@ export function BookingSummary({ state, dispatch, serviceCode, landingPage }: Bo
           service_name: serviceName,
           date: state.slot.date.split('-').reverse().join('-'), // DD-MM-YYYY
           source: 'mumbai.aiwo.com Website payment',
+          // ── Meta CAPI attribution (mirrors BookingForm) ──────────────────────
+          // Privacy-safe scoping/match data ONLY, forwarded so the backend can
+          // send the server-side Purchase on Razorpay payment.captured
+          // (event_id = purchase_<orderId>). No PII, no order/payment id here:
+          // pixel id + event source URL + browser _fbp/_fbc (format-validated by
+          // getFbCookies, omitted when absent). At this pre-redirect point the URL
+          // is the booking/service page — no order/patient identifier is present.
+          meta_pixel_id: META_PIXEL_ID,
+          meta_event_source_url: typeof window !== 'undefined' ? window.location.href : '',
+          ...getFbCookies(),
         },
         patient_id: patientId,
         date: state.slot.date,
