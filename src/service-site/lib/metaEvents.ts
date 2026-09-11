@@ -104,10 +104,31 @@ export function trackInitiateCheckout(amount: number, eventID: string): void {
 
 /**
  * K (diagnostic) → PaymentReturn (custom). Fired when /payment/success renders.
- * This is NOT Purchase: this build has no client- or backend-side payment-
- * verification contract, so a captured payment cannot be proven here. Carries no
- * value, order id, or amount — purely a return-to-site funnel signal.
+ * Retained as a return-to-site funnel signal. Carries no value, order id, or
+ * amount. Distinct from Purchase below — Purchase is the conversion, and only
+ * fires once the transaction is validated (see trackPurchase / PaymentSuccessPage).
  */
 export function trackPaymentReturn(): void {
   trackMetaCustom("PaymentReturn", { funnel_stage: "payment_return" });
+}
+
+/**
+ * G → Purchase (standard). THE conversion event. Fired exactly once from
+ * /payment/success, and ONLY after the validated-success boundary: the backend
+ * redirects to /payment/success solely on a confirmed captured payment, and the
+ * URL `orderId` matches the order stored at checkout (so `amount` is the proven
+ * booking charge for THIS transaction — never a stale/UI-inferred value).
+ *
+ * `eventID` MUST be `purchase_<orderId>` so this browser Purchase and the
+ * server-side CAPI Purchase (same event_id) collapse into one in Meta. The order
+ * id lives only inside that opaque eventID for dedup — it is NEVER sent as a
+ * custom parameter, and neither is the service name or any PII/health data.
+ * Dedup against refresh/back/re-render is enforced by the caller.
+ */
+export function trackPurchase(amount: number, eventID: string): void {
+  trackMetaStandard(
+    "Purchase",
+    { value: amount, currency: "INR", funnel_stage: "purchase" },
+    { eventID }
+  );
 }
