@@ -19,7 +19,6 @@ import { format, addDays } from "date-fns";
 import { Loader2, AlertCircle } from "lucide-react";
 import { trackMeta, getFbCookies, META_PIXEL_ID } from "@/lib/meta";
 import { captureBookingLead, markBookingApiFailed, markBookingPaymentInitiated, type BookingLeadInput } from "@/lib/bookingSheet";
-import { capturePostHogEvent } from "@/lib/posthog";
 
 declare global {
   interface Window {
@@ -191,11 +190,6 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
       value: rm.amount,
       currency: 'INR',
     });
-    // PostHog: booking form opened (mirrors ViewContent's timing, not its data).
-    capturePostHogEvent('booking_form_opened', {
-      route_type: routeType,
-      service_name: rm.name,
-    });
   }, [routeType]);
 
   useEffect(() => {
@@ -268,13 +262,6 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
 
     // ── Google Sheet: capture the lead immediately on a valid submit, before payment starts ──
     const leadReference = captureBookingLead(leadInput);
-
-    // PostHog: Confirm Booking clicked (fires alongside lead capture, before the API call).
-    capturePostHogEvent('booking_confirm_clicked', {
-      route_type: routeType,
-      service_name: serviceName,
-      environment: bookingSheetEnvironment,
-    });
 
     setIsBooking(true);
     setErrorMsg("");
@@ -561,15 +548,6 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
         throw new Error(data?.message || 'Booking failed');
       }
 
-      // PostHog: booking API call succeeded.
-      capturePostHogEvent('booking_api_success', {
-        route_type: routeType,
-        service_name: serviceName,
-        amount,
-        currency: 'INR',
-        environment: bookingSheetEnvironment,
-      });
-
       // ── Google Sheet: mark the lead as payment-initiated, fire-and-forget ──
       if (data.order_id) {
         markBookingPaymentInitiated(leadReference, leadInput, data.order_id);
@@ -599,14 +577,6 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
       });
 
       if (data.checkout_url) {
-        // PostHog: Razorpay checkout is about to open (redirect below is unchanged).
-        capturePostHogEvent('razorpay_checkout_opened', {
-          route_type: routeType,
-          service_name: serviceName,
-          amount,
-          currency: 'INR',
-          environment: bookingSheetEnvironment,
-        });
         // Persist purchase context so PaymentSuccess can send a complete Purchase event
         localStorage.setItem('aiwo_purchase_meta', JSON.stringify({
           amount,
@@ -626,12 +596,6 @@ export function BookingForm({ isInline = false }: { isInline?: boolean }) {
     } catch (err: any) {
       // ── Google Sheet: mark the lead as failed, fire-and-forget ──
       markBookingApiFailed(leadReference, leadInput);
-      // PostHog: booking API call failed.
-      capturePostHogEvent('booking_api_failed', {
-        route_type: routeType,
-        service_name: serviceName,
-        environment: bookingSheetEnvironment,
-      });
       setErrorMsg(err.message || 'An error occurred during booking.');
     } finally {
       setIsBooking(false);

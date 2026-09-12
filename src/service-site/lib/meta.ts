@@ -3,10 +3,8 @@
 // index.html; PageView and all conversion events are fired through the helpers
 // below so there is exactly one code path to Meta. Every helper is a safe no-op
 // when window.fbq is absent (ad blocker / not yet loaded / SSR), so tracking can
-// never crash the UI or the booking flow. Each call also mirrors into PostHog
-// (see posthog.ts) independently of fbq availability, so an ad blocker on one
-// tool doesn't suppress the other.
-import { mirrorMetaEventToPostHog } from "./posthog.ts";
+// never crash the UI or the booking flow. PostHog is instrumented separately at
+// the funnel-helper layer (metaEvents.ts), so this file deals only with Meta.
 
 declare global {
   interface Window {
@@ -39,8 +37,6 @@ function fire(method: "track" | "trackCustom", event: string, params?: Record<st
       /* never let tracking break the UI */
     }
   }
-  // Mirror standard-event names into PostHog (custom names are ignored by the map).
-  mirrorMetaEventToPostHog(event, params);
 }
 
 /** Fire a Meta STANDARD event (PageView, ViewContent, Contact, InitiateCheckout, …). */

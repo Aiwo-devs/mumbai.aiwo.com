@@ -9,7 +9,6 @@ import {
   markBookingPaymentInitiated,
   type BookingLeadInput,
 } from '@/lib/bookingSheet';
-import { capturePostHogEvent } from '@/lib/posthog';
 import { trackInitiateCheckout, newEventId } from '@/lib/metaEvents';
 import { getFbCookies, META_PIXEL_ID } from '@/lib/meta';
 
@@ -95,11 +94,6 @@ export function BookingSummary({ state, dispatch, serviceCode, landingPage }: Bo
       environment,
     };
     const leadReference = captureBookingLead(leadInput);
-    capturePostHogEvent('booking_confirm_clicked', {
-      service_name: serviceName,
-      landing_page: leadInput.landingPage,
-      environment,
-    });
 
     try {
       let patientId: string | null = null;
@@ -279,12 +273,6 @@ export function BookingSummary({ state, dispatch, serviceCode, landingPage }: Bo
       if (bookingResult && bookingResult.checkout_url) {
         // ── Preserve completed work: lead marked payment-initiated + context for /payment/success ──
         markBookingPaymentInitiated(leadReference, leadInput, bookingResult.order_id || '');
-        capturePostHogEvent('razorpay_checkout_opened', {
-          service_name: serviceName,
-          amount,
-          currency: 'INR',
-          environment,
-        });
         // ── Meta InitiateCheckout — the strongest proven pre-payment signal. Fired
         // only now that the backend returned a valid checkout_url, immediately
         // before handing off to Razorpay. `amount` is the proven getServicePrice
@@ -308,7 +296,6 @@ export function BookingSummary({ state, dispatch, serviceCode, landingPage }: Bo
       dispatch({ type: 'SUBMIT_SUCCESS' });
     } catch (err: any) {
       markBookingApiFailed(leadReference, leadInput);
-      capturePostHogEvent('booking_api_failed', { service_name: serviceName, environment });
       dispatch({ type: 'SUBMIT_ERROR', payload: err.message || 'An unexpected error occurred during booking.' });
     }
   };

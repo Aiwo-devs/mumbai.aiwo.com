@@ -15,6 +15,10 @@
  * booking amount, value + currency. Advanced Matching is OFF (see index.html).
  */
 import { trackMetaStandard, trackMetaCustom, trackMetaPageView } from "./meta.ts";
+// PostHog mirrors the SAME funnel at the SAME boundaries, independently of fbq.
+// Each call below is additive: it never changes the Meta event, its params, or
+// its dedup, and PostHog's own module drops any PII/order id before sending.
+import * as posthogEvents from "./posthog.ts";
 
 // Order-reference query keys the backend / Razorpay callback may append to
 // /payment/success (mirrors PaymentSuccessPage's own list). These must never be
@@ -66,26 +70,32 @@ export function newEventId(): string {
 /** A → PageView. Fired once per rendered route (initial load + every SPA navigation). */
 export function trackPageView(): void {
   trackMetaPageView();
+  posthogEvents.trackPageview(); // PostHog $pageview (URL scrubbed of order ids)
 }
 
 /** B → ViewContent. Fired once per landing-page view (home + service pages). Generic category only. */
 export function trackViewContent(pageType: string): void {
   trackMetaStandard("ViewContent", { funnel_stage: "view_content", page_type: pageType });
+  // PostHog service_viewed is service-pages only (not the home page).
+  if (pageType === "service_page") posthogEvents.trackServiceView();
 }
 
 /** C → BookingCTA (custom). Fired on a Book CTA click. Intent, NOT a conversion. */
 export function trackBookingCTA(): void {
   trackMetaCustom("BookingCTA", { funnel_stage: "booking_cta" });
+  posthogEvents.trackBookingCTA();
 }
 
 /** D → Contact (standard). Fired on a phone/WhatsApp click. The phone number is NEVER sent — only the method. */
 export function trackContact(method: "call" | "whatsapp"): void {
   trackMetaStandard("Contact", { funnel_stage: "contact", contact_method: method });
+  posthogEvents.trackContact(method === "call" ? "phone" : "whatsapp");
 }
 
 /** F → BookingFormStart (custom). Fired once when the user genuinely begins the booking widget (first slot pick). */
 export function trackBookingFormStart(): void {
   trackMetaCustom("BookingFormStart", { funnel_stage: "booking_form_start" });
+  posthogEvents.trackBookingStarted();
 }
 
 /**
@@ -100,6 +110,7 @@ export function trackInitiateCheckout(amount: number, eventID: string): void {
     { value: amount, currency: "INR", funnel_stage: "checkout" },
     { eventID }
   );
+  posthogEvents.trackCheckoutStarted(amount); // PostHog checkout_started (amount only, no order id / eventID)
 }
 
 /**
@@ -131,4 +142,5 @@ export function trackPurchase(amount: number, eventID: string): void {
     { value: amount, currency: "INR", funnel_stage: "purchase" },
     { eventID }
   );
+  posthogEvents.trackPaymentSuccess(amount); // PostHog payment_success (amount only, no order id / eventID)
 }
