@@ -57,7 +57,10 @@ export function ServiceBooking({ serviceId, serviceName, serviceCode, landingPag
   };
 
   return (
-    <div className="service-booking-widget">
+    // ph-no-capture: fully blocks this booking subtree from PostHog session
+    // replay (defence-in-depth on top of global input+text masking) so no
+    // patient-entered data is ever recorded. Does not affect layout/behaviour.
+    <div className="service-booking-widget ph-no-capture">
       <div className="booking-stepper-indicator">
         <div className={`step-dot ${state.step === 'SELECT_SLOT' ? 'active' : ''}`}>1</div>
         <div className="step-line"></div>
