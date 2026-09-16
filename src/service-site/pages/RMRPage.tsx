@@ -7,6 +7,8 @@ import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import rmrTestingImg from "@/assets/08-RMRTesting_1781241418139.webp";
 import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
+import { ContentGraph } from "@/components/ContentGraph";
+import { StructuredData } from "@/components/StructuredData";
 
 const scrollTo = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
   e.preventDefault();
@@ -821,42 +823,44 @@ function Testimonials() {
   );
 }
 
+const rmrFaqItems = [
+  {
+    q: "How is this different from the BMR or calorie calculations my fitness app does?",
+    a: "Your app uses a mathematical formula — typically Mifflin-St Jeor or Harris-Benedict — built from data across large populations. For any individual, those formulas can be 200–600 calories off. The AIWO RMR test uses indirect calorimetry: it physically measures the oxygen your lungs consume over 10 minutes and calculates your actual calorie burn from that. The formula estimates a number. The test measures yours.",
+  },
+  {
+    q: "What is indirect calorimetry and how does it work?",
+    a: "Burning 1 calorie requires 208 millilitres of oxygen. AIWO's indirect calorimeter measures the exact volume of air you exhale and the oxygen concentration in that air, breath by breath. From these two measurements it calculates exactly how many calories your body is burning at rest. The relationship between oxygen consumed and calories burned is fixed by biochemistry — so the measurement is highly precise.",
+  },
+  {
+    q: "Do I need to fast before the test? What exactly is required?",
+    a: "Yes — a 4-hour fast before your test (water is fine). On the day of the test: no caffeine, no nicotine, no intense exercise. Take your regular prescription medications as normal. These restrictions exist because food, stimulants, and recent exercise all temporarily change your metabolic rate — which would give you a result that reflects today's coffee, not your baseline metabolism.",
+  },
+  {
+    q: "What is a Quality Score on the RMR report?",
+    a: "AIWO's indirect calorimeter assigns a Quality Score (0–100) to every test session. It reflects how stable and consistent your breathing was during the test. A score of 80 or above means the measurement is highly reliable. Most AIWO tests score 80–95. If your score falls below 80, our experts will discuss whether a re-test is recommended — and if the lower score was due to any equipment or procedural issue on our side, the re-test is at no charge.",
+  },
+  {
+    q: "How long does the test take?",
+    a: "The active testing time is approximately 10 minutes of quiet breathing. Allow 30–45 minutes total for your visit, including arrival, setup, the test, and the brief results review with our experts.",
+  },
+  {
+    q: "What does the report include exactly?",
+    a: "Your report includes: your exact RMR in kcal/day, a comparison of your metabolic rate versus others of your height and weight, three calorie targets (maintenance / weight loss / exercise burn), a Quality Score, and your BMI. AIWO also provides a Smart Report with additional metabolic insights and a personalised expert consultation.",
+  },
+  {
+    q: "Is ₹4,999 for the test alone, or does it include the consultation?",
+    a: "₹4,999 includes the full indirect calorimetry RMR test, your personalised report, your AIWO Smart Report, and the post-test expert review. A full nutritionist consultation for a personalised eating plan is available as an additional service.",
+  },
+  {
+    q: "How often should I re-test my RMR?",
+    a: "Once annually is sufficient for most people to track metabolic changes over time. If you have made significant dietary changes, experienced major weight change, or changed your training programme substantially, a re-test 3–6 months later can show how your metabolism has adapted.",
+  },
+];
+
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
-  const faqs = [
-    {
-      q: "How is this different from the BMR or calorie calculations my fitness app does?",
-      a: "Your app uses a mathematical formula — typically Mifflin-St Jeor or Harris-Benedict — built from data across large populations. For any individual, those formulas can be 200–600 calories off. The AIWO RMR test uses indirect calorimetry: it physically measures the oxygen your lungs consume over 10 minutes and calculates your actual calorie burn from that. The formula estimates a number. The test measures yours.",
-    },
-    {
-      q: "What is indirect calorimetry and how does it work?",
-      a: "Burning 1 calorie requires 208 millilitres of oxygen. AIWO's indirect calorimeter measures the exact volume of air you exhale and the oxygen concentration in that air, breath by breath. From these two measurements it calculates exactly how many calories your body is burning at rest. The relationship between oxygen consumed and calories burned is fixed by biochemistry — so the measurement is highly precise.",
-    },
-    {
-      q: "Do I need to fast before the test? What exactly is required?",
-      a: "Yes — a 4-hour fast before your test (water is fine). On the day of the test: no caffeine, no nicotine, no intense exercise. Take your regular prescription medications as normal. These restrictions exist because food, stimulants, and recent exercise all temporarily change your metabolic rate — which would give you a result that reflects today's coffee, not your baseline metabolism.",
-    },
-    {
-      q: "What is a Quality Score on the RMR report?",
-      a: "AIWO's indirect calorimeter assigns a Quality Score (0–100) to every test session. It reflects how stable and consistent your breathing was during the test. A score of 80 or above means the measurement is highly reliable. Most AIWO tests score 80–95. If your score falls below 80, our experts will discuss whether a re-test is recommended — and if the lower score was due to any equipment or procedural issue on our side, the re-test is at no charge.",
-    },
-    {
-      q: "How long does the test take?",
-      a: "The active testing time is approximately 10 minutes of quiet breathing. Allow 30–45 minutes total for your visit, including arrival, setup, the test, and the brief results review with our experts.",
-    },
-    {
-      q: "What does the report include exactly?",
-      a: "Your report includes: your exact RMR in kcal/day, a comparison of your metabolic rate versus others of your height and weight, three calorie targets (maintenance / weight loss / exercise burn), a Quality Score, and your BMI. AIWO also provides a Smart Report with additional metabolic insights and a personalised expert consultation.",
-    },
-    {
-      q: "Is ₹4,999 for the test alone, or does it include the consultation?",
-      a: "₹4,999 includes the full indirect calorimetry RMR test, your personalised report, your AIWO Smart Report, and the post-test expert review. A full nutritionist consultation for a personalised eating plan is available as an additional service.",
-    },
-    {
-      q: "How often should I re-test my RMR?",
-      a: "Once annually is sufficient for most people to track metabolic changes over time. If you have made significant dietary changes, experienced major weight change, or changed your training programme substantially, a re-test 3–6 months later can show how your metabolism has adapted.",
-    },
-  ];
+  const faqs = rmrFaqItems;
 
   return (
     <section id="faq" className="py-12 lg:py-20 bg-white border-b border-border">
@@ -895,13 +899,60 @@ function FAQ() {
   );
 }
 
+const rmrContentGraphNodes: [
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+] = [
+  { label: "Book & Prepare", body: "Schedule online or via WhatsApp; a 4-hour fast beforehand." },
+  { label: "The Test", body: "10 minutes of quiet breathing measured by indirect calorimetry." },
+  { label: "Your Report", body: "Exact RMR, Quality Score and calorie targets, ready in 5 minutes." },
+  { label: "Next Direction", body: "Optional nutritionist consult to build a personalised eating plan." },
+];
+
+const rmrStructuredData = {
+  service: {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Resting Metabolic Rate (RMR) Test",
+    description:
+      "Advanced RMR test in Mumbai using indirect calorimetry for accurate resting metabolic rate analysis for weight loss, fitness, and personalized nutrition plans.",
+    provider: { "@type": "MedicalClinic", name: "AIWO Longevity Clinic — Fairmont Mumbai" },
+    areaServed: { "@type": "City", name: "Mumbai" },
+    url: "https://mumbai.aiwo.com/services/rmr",
+  },
+  breadcrumb: {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://mumbai.aiwo.com/" },
+      { "@type": "ListItem", position: 2, name: "RMR Test", item: "https://mumbai.aiwo.com/services/rmr" },
+    ],
+  },
+  faq: {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: rmrFaqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+};
+
 export default function RMRPage() {
   return (
     <div className="min-h-screen bg-white">
       <MetaTags
         title="RMR Test in Mumbai | Resting Metabolic Rate Analysis Clinic"
         description="Measure your metabolism with an advanced RMR test in Mumbai. Get accurate resting metabolic rate analysis for weight loss, fitness, and personalized nutrition plans."
+        path="/services/rmr"
+        image={rmrTestingImg}
       />
+      <StructuredData id="rmr-service" data={rmrStructuredData.service} />
+      <StructuredData id="rmr-breadcrumb" data={rmrStructuredData.breadcrumb} />
+      <StructuredData id="rmr-faq" data={rmrStructuredData.faq} />
       <Navigation
         sections={[
           { label: "The Science", href: "#test" },
@@ -926,6 +977,11 @@ export default function RMRPage() {
             <ServiceBookingWidget />
           </div>
         </section>
+        <ContentGraph
+          eyebrow="Service Journey"
+          heading="From booking to your next step."
+          nodes={rmrContentGraphNodes}
+        />
         <FAQ />
       </main>
       <Footer />

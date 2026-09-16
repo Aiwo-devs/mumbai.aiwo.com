@@ -5,6 +5,8 @@ import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
 import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
+import { ContentGraph } from "@/components/ContentGraph";
+import { StructuredData } from "@/components/StructuredData";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 
 const scrollTo = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -762,47 +764,49 @@ function Intake() {
 
 // ─── SECTION 9: FAQ — 9 questions, white bg (from V1) ────────────────────────
 
+const sculptFaqItems = [
+  {
+    q: "Does AIWO Sculpt hurt?",
+    a: "No — but you will feel it. The sessions produce intense, rhythmic muscle contractions deeper than anything voluntary exercise produces. Most clients describe the sensation as powerful but not painful. Intensity is set with you, not on you. We start low and increase as your tolerance builds.",
+  },
+  {
+    q: "How is AIWO Sculpt different from Emsculpt or the body sculpt programmes at other clinics?",
+    a: "Most India sculpting programmes use one or two technologies. AIWO Sculpt combines all three — HIFEM, EMS and RF — in the same applicator. And AIWO Sculpt is delivered inside an integrated longevity diagnostics centre, so your programme is informed by your body composition data, not designed in isolation.",
+  },
+  {
+    q: "How many sessions will I actually need?",
+    a: "The standard AIWO Sculpt programme is 20 sessions across 10 weeks. Some clients see visible change after session 4. Programme-end measurement is at session 20. Your specific session count is confirmed in your consult.",
+  },
+  {
+    q: "Is AIWO Sculpt appropriate after childbirth?",
+    a: "Yes, after the standard postpartum waiting period your obstetrician or gynaecologist confirms is appropriate for your delivery type. AIWO Sculpt's postpartum protocol is specifically designed for diastasis recti, pelvic floor weakness and abdominal laxity. Bring your post-delivery clearance to your consult.",
+  },
+  {
+    q: "Are there side effects?",
+    a: "Some clients report mild soreness in the 24 hours after a session — similar to a focused gym workout. Some report increased thirst. These typically resolve within a day. AIWO Sculpt is non-surgical and non-invasive. The treatment is not appropriate for clients with metal implants, pacemakers, or electronic devices in the treatment area, or during pregnancy.",
+  },
+  {
+    q: "Will the results last?",
+    a: "Muscle mass gained through AIWO Sculpt is maintained by continued use — the same as voluntary training. Fat cells eliminated in the treated area do not regenerate, but new fat deposits can form elsewhere with weight gain. AIWO Sculpt is most durable when paired with sustained training and nutrition habits. Maintenance sessions every 2–3 months can extend results.",
+  },
+  {
+    q: "Do I need to do the diagnostics to start AIWO Sculpt?",
+    a: "The body composition consult is included in the programme. DEXA, RMR and blood panel add-ons are optional but recommended for clients who want a fully measured programme. Your consult will tell you which add-ons are most useful for your situation.",
+  },
+  {
+    q: "Can men do AIWO Sculpt?",
+    a: "Yes. The four client profiles AIWO Sculpt is designed for — plateau athlete, postpartum recovery, longevity-tracker, post-weight-loss recovery — include both men and women. Approximately half of AIWO Sculpt clients are men.",
+  },
+  {
+    q: "How do I book?",
+    a: "Book your body composition consult through the form on this page. Or call our toll-free line at 1800-572-2496.",
+  },
+];
+
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
 
-  const items = [
-    {
-      q: "Does AIWO Sculpt hurt?",
-      a: "No — but you will feel it. The sessions produce intense, rhythmic muscle contractions deeper than anything voluntary exercise produces. Most clients describe the sensation as powerful but not painful. Intensity is set with you, not on you. We start low and increase as your tolerance builds.",
-    },
-    {
-      q: "How is AIWO Sculpt different from Emsculpt or the body sculpt programmes at other clinics?",
-      a: "Most India sculpting programmes use one or two technologies. AIWO Sculpt combines all three — HIFEM, EMS and RF — in the same applicator. And AIWO Sculpt is delivered inside an integrated longevity diagnostics centre, so your programme is informed by your body composition data, not designed in isolation.",
-    },
-    {
-      q: "How many sessions will I actually need?",
-      a: "The standard AIWO Sculpt programme is 20 sessions across 10 weeks. Some clients see visible change after session 4. Programme-end measurement is at session 20. Your specific session count is confirmed in your consult.",
-    },
-    {
-      q: "Is AIWO Sculpt appropriate after childbirth?",
-      a: "Yes, after the standard postpartum waiting period your obstetrician or gynaecologist confirms is appropriate for your delivery type. AIWO Sculpt's postpartum protocol is specifically designed for diastasis recti, pelvic floor weakness and abdominal laxity. Bring your post-delivery clearance to your consult.",
-    },
-    {
-      q: "Are there side effects?",
-      a: "Some clients report mild soreness in the 24 hours after a session — similar to a focused gym workout. Some report increased thirst. These typically resolve within a day. AIWO Sculpt is non-surgical and non-invasive. The treatment is not appropriate for clients with metal implants, pacemakers, or electronic devices in the treatment area, or during pregnancy.",
-    },
-    {
-      q: "Will the results last?",
-      a: "Muscle mass gained through AIWO Sculpt is maintained by continued use — the same as voluntary training. Fat cells eliminated in the treated area do not regenerate, but new fat deposits can form elsewhere with weight gain. AIWO Sculpt is most durable when paired with sustained training and nutrition habits. Maintenance sessions every 2–3 months can extend results.",
-    },
-    {
-      q: "Do I need to do the diagnostics to start AIWO Sculpt?",
-      a: "The body composition consult is included in the programme. DEXA, RMR and blood panel add-ons are optional but recommended for clients who want a fully measured programme. Your consult will tell you which add-ons are most useful for your situation.",
-    },
-    {
-      q: "Can men do AIWO Sculpt?",
-      a: "Yes. The four client profiles AIWO Sculpt is designed for — plateau athlete, postpartum recovery, longevity-tracker, post-weight-loss recovery — include both men and women. Approximately half of AIWO Sculpt clients are men.",
-    },
-    {
-      q: "How do I book?",
-      a: "Book your body composition consult through the form on this page. Or call our toll-free line at 1800-572-2496.",
-    },
-  ];
+  const items = sculptFaqItems;
 
   return (
     <section id="faq" className="py-12 lg:py-20 bg-white border-b border-border">
@@ -853,13 +857,62 @@ function FAQSection() {
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
+const sculptContentGraphNodes: [
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+] = [
+  { label: "Schedule", body: "Body composition consult confirms your treatment area and programme design." },
+  { label: "Prepare", body: "No fasting required; wear comfortable clothing for the treatment area." },
+  { label: "The Session", body: "30-minute applicator session, intensity set with you, deep rhythmic contractions." },
+  { label: "Return to Your Day", body: "No recovery time; two sessions a week across a ten-week programme." },
+];
+
+const sculptStructuredData = {
+  service: {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "AIWO Sculpt (Non-Surgical Body Contouring)",
+    description:
+      "Non-surgical body contouring in Mumbai to reduce stubborn fat, tone muscles and improve body shape.",
+    provider: { "@type": "MedicalClinic", name: "AIWO Longevity Clinic — Fairmont Mumbai" },
+    areaServed: { "@type": "City", name: "Mumbai" },
+    url: "https://mumbai.aiwo.com/services/ems-sculpting",
+  },
+  breadcrumb: {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://mumbai.aiwo.com/" },
+      { "@type": "ListItem", position: 2, name: "AIWO Sculpt", item: "https://mumbai.aiwo.com/services/ems-sculpting" },
+    ],
+  },
+  faq: {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: sculptFaqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+};
+
+// ─── PAGE ─────────────────────────────────────────────────────────────────────
+
 export default function SculptPage() {
   return (
     <div className="min-h-screen bg-white text-foreground font-sans">
       <MetaTags
         title="Body Sculpting in Mumbai | Non-Surgical Fat Reduction | AIWO"
         description="Transform your body with AIWO Sculpt. Non-surgical body contouring helps reduce stubborn fat, tone muscles and improve body shape. Book today."
+        path="/services/ems-sculpting"
+        image="/aiwologo.jpg"
       />
+      <StructuredData id="sculpt-service" data={sculptStructuredData.service} />
+      <StructuredData id="sculpt-breadcrumb" data={sculptStructuredData.breadcrumb} />
+      <StructuredData id="sculpt-faq" data={sculptStructuredData.faq} />
       <Navigation
         sections={[
           { label: "The Mechanism", href: "#what-it-delivers" },
@@ -881,6 +934,11 @@ export default function SculptPage() {
         <WhyItsDifferent />
         <Pricing />
         <Intake />
+        <ContentGraph
+          eyebrow="Service Journey"
+          heading="From scheduling to your programme."
+          nodes={sculptContentGraphNodes}
+        />
         <FAQSection />
       </main>
       <Footer brand="AIWO SCULPT" />

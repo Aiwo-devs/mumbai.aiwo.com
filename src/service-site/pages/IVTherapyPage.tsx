@@ -5,6 +5,8 @@ import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
 import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
+import { ContentGraph } from "@/components/ContentGraph";
+import { StructuredData } from "@/components/StructuredData";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 
 /* ─────────────────────────────────────────────────────────────────
@@ -763,6 +765,52 @@ function FAQSection() {
 ───────────────────────────────────────────────────────────────── */
 
 /* ─────────────────────────────────────────────────────────────────
+   Content graph — service journey (derived from Process/FAQ content)
+───────────────────────────────────────────────────────────────── */
+
+const ivContentGraphNodes: [
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+] = [
+  { label: "Consultation", body: "Health history and goals reviewed; formulation matched to you." },
+  { label: "Formulation", body: "Pharmaceutical-grade preparation, informed consent signed." },
+  { label: "Infusion", body: "Nurse-administered under physician supervision, vitals monitored." },
+  { label: "Follow-up", body: "Progress documented; next session scheduled." },
+];
+
+const ivStructuredData = {
+  service: {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "IV Therapy",
+    description:
+      "Personalized IV Therapy in Mumbai for immunity, hydration, energy, recovery, anti-aging and glowing skin.",
+    provider: { "@type": "MedicalClinic", name: "AIWO Longevity Clinic — Fairmont Mumbai" },
+    areaServed: { "@type": "City", name: "Mumbai" },
+    url: "https://mumbai.aiwo.com/services/iv-therapy",
+  },
+  breadcrumb: {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://mumbai.aiwo.com/" },
+      { "@type": "ListItem", position: 2, name: "IV Therapy", item: "https://mumbai.aiwo.com/services/iv-therapy" },
+    ],
+  },
+  faq: {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+};
+
+/* ─────────────────────────────────────────────────────────────────
    PAGE — 10-section DEXA template clone (IV Therapy v1)
 ───────────────────────────────────────────────────────────────── */
 
@@ -772,7 +820,12 @@ export default function IVTherapyPage() {
       <MetaTags
         title="IV Therapy in Mumbai | Immunity, Energy & Skin Glow | AIWO"
         description="Experience personalized IV Therapy in Mumbai for immunity, hydration, energy, recovery, anti-aging and glowing skin. Book your IV drip at AIWO today."
+        path="/services/iv-therapy"
+        image="/aiwologo.jpg"
       />
+      <StructuredData id="iv-service" data={ivStructuredData.service} />
+      <StructuredData id="iv-breadcrumb" data={ivStructuredData.breadcrumb} />
+      <StructuredData id="iv-faq" data={ivStructuredData.faq} />
       <Navigation
         sections={[
           { label: "Formulations", href: "#what-it-delivers" },
@@ -789,6 +842,11 @@ export default function IVTherapyPage() {
         <Process />          {/* S5 */}
         <ComparisonTable />  {/* S6 */}
         <BookingIntake />    {/* S7 */}
+        <ContentGraph
+          eyebrow="Service Journey"
+          heading="From consultation to your next visit."
+          nodes={ivContentGraphNodes}
+        />
         <FAQSection />       {/* S9 */}
       </main>
       <Footer />             {/* S10 */}

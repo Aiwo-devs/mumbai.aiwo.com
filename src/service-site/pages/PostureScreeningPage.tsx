@@ -4,6 +4,8 @@ import { Footer } from "@/components/sections/Footer";
 import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { ArrowRight, Check } from "lucide-react";
 import { MetaTags } from "@/components/MetaTags";
+import { ContentGraph } from "@/components/ContentGraph";
+import { StructuredData } from "@/components/StructuredData";
 import { Navigation } from "@/components/sections/Navigation";
 import postureComparisonImg from "@/assets/image_1779905825232.png";
 
@@ -713,13 +715,55 @@ function Book() {
   );
 }
 
+const postureContentGraphNodes: [
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+] = [
+  { label: "Context", body: "Hours of screen time and sedentary habits gradually reshape posture." },
+  { label: "Assessment", body: "25-point AI vision scan of alignment across three planes." },
+  { label: "Service", body: "Early detection of postural deviations via computer vision." },
+  { label: "Direction", body: "Personalised correction plan with an expert 1:1 consultation." },
+];
+
+const postureStructuredData = {
+  service: {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Posture Screening",
+    description:
+      "AI-powered posture screening in Mumbai to identify imbalances, alignment issues and movement restrictions.",
+    provider: { "@type": "MedicalClinic", name: "AIWO Longevity Clinic — Fairmont Mumbai" },
+    areaServed: { "@type": "City", name: "Mumbai" },
+    url: "https://mumbai.aiwo.com/services/posture-screening",
+  },
+  breadcrumb: {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://mumbai.aiwo.com/" },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Posture Screening",
+        item: "https://mumbai.aiwo.com/services/posture-screening",
+      },
+    ],
+  },
+};
+
 export default function PostureScreeningPage() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
-      <MetaTags 
+      <MetaTags
         title="Posture Screening Mumbai | Neck & Back Pain Relief | AIWO"
         description="Correct posture issues with AI-powered screening at AIWO Mumbai. Identify imbalances, alignment issues & movement restrictions. Reduce pain, improve mobility. Book your assessment today."
+        path="/services/posture-screening"
+        image={postureComparisonImg}
       />
+      <StructuredData id="posture-service" data={postureStructuredData.service} />
+      <StructuredData id="posture-breadcrumb" data={postureStructuredData.breadcrumb} />
       <TopBar />
       <Navigation
         sections={[
@@ -735,6 +779,11 @@ export default function PostureScreeningPage() {
         <SilentDamage />
         <Solution />
         <Benefits />
+        <ContentGraph
+          eyebrow="Service Journey"
+          heading="From habit to a personalised correction plan."
+          nodes={postureContentGraphNodes}
+        />
         <Testimonials />
         <Book />
       </main>

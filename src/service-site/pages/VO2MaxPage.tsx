@@ -6,6 +6,8 @@ import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import vo2TestingImg from "@/assets/09-Vo2maxtesting_1781348570353.webp";
 import { ServiceBookingWidget } from "@/booking/ServiceBookingWidget";
 import { MetaTags } from "@/components/MetaTags";
+import { ContentGraph } from "@/components/ContentGraph";
+import { StructuredData } from "@/components/StructuredData";
 import { Navigation } from "@/components/sections/Navigation";
 
 const scrollTo = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -624,31 +626,33 @@ function Testimonials() {
   );
 }
 
+const vo2FaqItems = [
+  {
+    q: "My annual blood test and ECG were fine. Why do I need a VO2 Max test?",
+    a: "Your blood test measures chemical markers at rest. Your ECG measures electrical activity at rest. Neither one measures how your cardiovascular system performs under the load of actual exercise — which is when most cardiac and respiratory stress occurs. VO2 Max is the measure of function under load. It reveals what resting tests cannot.",
+  },
+  {
+    q: "My Apple Watch already gives me a VO2 Max estimate. Is a lab test really necessary?",
+    a: "That depends on how much the number matters to you. If VO2 Max is primarily a curiosity metric, your watch is sufficient. If it is a number you intend to train from, benchmark against, or use as a health indicator — research shows wearable estimates carry an average error of up to 16%. A direct lab measurement eliminates that error entirely.",
+  },
+  {
+    q: "I'm not an athlete. Is this test relevant to me?",
+    a: "VO2 Max is more relevant to non-athletes than it is to competitive athletes, because it is the most sensitive early indicator of cardiovascular aging. Athletes monitor it for performance. Everyone else should monitor it for longevity. The lower a person's VO2 Max relative to their age and gender, the higher their statistical risk. You do not need to be an athlete for that data to matter.",
+  },
+  {
+    q: "How physically demanding is the test? What if I can't complete it?",
+    a: "The test increases in intensity until you reach your maximum. Our technicians are experienced working with every fitness level — from elite athletes to people who have not exercised in years. The test is always adapted to you. A health screen before the test confirms you are appropriate for the protocol.",
+  },
+  {
+    q: "What happens if my results raise a concern?",
+    a: "Our AIWO experts are ready for exactly this. If your results indicate something that warrants attention, we will tell you clearly, explain what it means, and refer you to the appropriate specialist.",
+  },
+];
+
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
-  const items = [
-    {
-      q: "My annual blood test and ECG were fine. Why do I need a VO2 Max test?",
-      a: "Your blood test measures chemical markers at rest. Your ECG measures electrical activity at rest. Neither one measures how your cardiovascular system performs under the load of actual exercise — which is when most cardiac and respiratory stress occurs. VO2 Max is the measure of function under load. It reveals what resting tests cannot.",
-    },
-    {
-      q: "My Apple Watch already gives me a VO2 Max estimate. Is a lab test really necessary?",
-      a: "That depends on how much the number matters to you. If VO2 Max is primarily a curiosity metric, your watch is sufficient. If it is a number you intend to train from, benchmark against, or use as a health indicator — research shows wearable estimates carry an average error of up to 16%. A direct lab measurement eliminates that error entirely.",
-    },
-    {
-      q: "I'm not an athlete. Is this test relevant to me?",
-      a: "VO2 Max is more relevant to non-athletes than it is to competitive athletes, because it is the most sensitive early indicator of cardiovascular aging. Athletes monitor it for performance. Everyone else should monitor it for longevity. The lower a person's VO2 Max relative to their age and gender, the higher their statistical risk. You do not need to be an athlete for that data to matter.",
-    },
-    {
-      q: "How physically demanding is the test? What if I can't complete it?",
-      a: "The test increases in intensity until you reach your maximum. Our technicians are experienced working with every fitness level — from elite athletes to people who have not exercised in years. The test is always adapted to you. A health screen before the test confirms you are appropriate for the protocol.",
-    },
-    {
-      q: "What happens if my results raise a concern?",
-      a: "Our AIWO experts are ready for exactly this. If your results indicate something that warrants attention, we will tell you clearly, explain what it means, and refer you to the appropriate specialist.",
-    },
-  ];
+  const items = vo2FaqItems;
 
   return (
     <section id="faq" className="py-12 lg:py-20 bg-white border-b border-border">
@@ -718,13 +722,60 @@ function BookingSection() {
   );
 }
 
+const vo2ContentGraphNodes: [
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+  { label: string; body: string },
+] = [
+  { label: "Book & Arrive", body: "Schedule online or via WhatsApp; a short health screen on arrival." },
+  { label: "The Test", body: "Mask-monitored treadmill or bike test at progressively increasing intensity." },
+  { label: "Your Report", body: "4-page report printed on-site, walked through by your AIWO expert." },
+  { label: "Next Direction", body: "Personalised training guidance based on your results." },
+];
+
+const vo2StructuredData = {
+  service: {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "VO2 Max Test",
+    description:
+      "Precise cardiorespiratory fitness assessment in Mumbai for athletes, runners, and health-conscious individuals.",
+    provider: { "@type": "MedicalClinic", name: "AIWO Longevity Clinic — Fairmont Mumbai" },
+    areaServed: { "@type": "City", name: "Mumbai" },
+    url: "https://mumbai.aiwo.com/services/vo2-max",
+  },
+  breadcrumb: {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://mumbai.aiwo.com/" },
+      { "@type": "ListItem", position: 2, name: "VO2 Max Test", item: "https://mumbai.aiwo.com/services/vo2-max" },
+    ],
+  },
+  faq: {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: vo2FaqItems.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+};
+
 export default function VO2MaxPage() {
   return (
     <div className="min-h-screen bg-white">
       <MetaTags
         title="VO2 Max Test in Mumbai | Cardiorespiratory Fitness Assessment"
         description="Improve endurance and heart health with a VO2 Max test in Mumbai. Get precise cardiorespiratory fitness analysis for athletes, runners, and health-conscious individuals."
+        path="/services/vo2-max"
+        image={vo2TestingImg}
       />
+      <StructuredData id="vo2-service" data={vo2StructuredData.service} />
+      <StructuredData id="vo2-breadcrumb" data={vo2StructuredData.breadcrumb} />
+      <StructuredData id="vo2-faq" data={vo2StructuredData.faq} />
       <Navigation
         sections={[
           { label: "Problem", href: "#problem" },
@@ -743,6 +794,11 @@ export default function VO2MaxPage() {
         <HowItWorks />
         <WhoIsItFor />
         <Testimonials />
+        <ContentGraph
+          eyebrow="Service Journey"
+          heading="From booking to your training plan."
+          nodes={vo2ContentGraphNodes}
+        />
         <FAQ />
         <BookingSection />
       </main>
