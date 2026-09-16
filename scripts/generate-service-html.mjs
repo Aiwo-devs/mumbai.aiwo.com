@@ -98,10 +98,14 @@ function renderHtml(base, service) {
 const basePath = join(distDir, "index.html");
 const base = readFileSync(basePath, "utf-8");
 
+// Flat `<slug>.html` (Netlify's built-in pretty-URL rewrite serves this at
+// /services/<slug> with no redirect) rather than `<slug>/index.html`, which
+// Netlify instead 301s to the trailing-slash form before serving.
+const servicesDir = join(distDir, "services");
+mkdirSync(servicesDir, { recursive: true });
+
 for (const service of services) {
   const html = renderHtml(base, service);
-  const outDir = join(distDir, "services", service.slug);
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "index.html"), html);
-  console.log(`wrote dist/services/${service.slug}/index.html`);
+  writeFileSync(join(servicesDir, `${service.slug}.html`), html);
+  console.log(`wrote dist/services/${service.slug}.html`);
 }
