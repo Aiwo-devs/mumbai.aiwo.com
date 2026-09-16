@@ -981,6 +981,7 @@ export default function RMRPage() {
           eyebrow="Service Journey"
           heading="From booking to your next step."
           nodes={rmrContentGraphNodes}
+          image={{ src: rmrTestingImg, alt: "Client undergoing AIWO RMR test" }}
         />
         <FAQ />
       </main>

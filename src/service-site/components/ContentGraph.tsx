@@ -6,11 +6,18 @@ export interface ContentGraphNode {
   body: string;
 }
 
+interface ContentGraphImage {
+  src: string;
+  alt: string;
+}
+
 interface ContentGraphProps {
   eyebrow: string;
   heading: string;
   /** Four journey nodes: need/context → assessment → service → outcome/direction. Copy must be derived from existing page content. */
   nodes: [ContentGraphNode, ContentGraphNode, ContentGraphNode, ContentGraphNode];
+  /** Optional service photo shown beside the heading, grayscale-treated to match the section. */
+  image?: ContentGraphImage;
 }
 
 function Connector() {
@@ -29,18 +36,42 @@ function Connector() {
 }
 
 /** Shared, grayscale "service journey" information graph — reused across all service pages. Text/SVG only, no chart libraries. */
-export function ContentGraph({ eyebrow, heading, nodes }: ContentGraphProps) {
+export function ContentGraph({ eyebrow, heading, nodes, image }: ContentGraphProps) {
   return (
     <section className="py-16 lg:py-24 bg-white border-b border-border">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-        <Reveal>
-          <div className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
-            {eyebrow}
-          </div>
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-[1.05] text-foreground mb-10 lg:mb-14 max-w-2xl">
-            {heading}
-          </h2>
-        </Reveal>
+        <div
+          className={
+            image
+              ? "grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 lg:gap-12 items-start mb-10 lg:mb-14"
+              : undefined
+          }
+        >
+          <Reveal>
+            <div className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
+              {eyebrow}
+            </div>
+            <h2
+              className={`font-serif text-2xl sm:text-3xl lg:text-4xl leading-[1.05] text-foreground max-w-2xl ${image ? "" : "mb-10 lg:mb-14"}`}
+            >
+              {heading}
+            </h2>
+          </Reveal>
+
+          {image && (
+            <Reveal delay={0.06} className="lg:justify-self-end w-full">
+              <div className="aspect-[4/3] w-full border border-border overflow-hidden">
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.95)" }}
+                />
+              </div>
+            </Reveal>
+          )}
+        </div>
 
         <div className="flex flex-col lg:flex-row lg:items-stretch">
           {nodes.map((node, i) => (

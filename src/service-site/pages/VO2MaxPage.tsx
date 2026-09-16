@@ -798,6 +798,7 @@ export default function VO2MaxPage() {
           eyebrow="Service Journey"
           heading="From booking to your training plan."
           nodes={vo2ContentGraphNodes}
+          image={{ src: vo2TestingImg, alt: "Client undergoing AIWO VO2 Max test" }}
         />
         <FAQ />
         <BookingSection />

@@ -783,6 +783,7 @@ export default function PostureScreeningPage() {
           eyebrow="Service Journey"
           heading="From habit to a personalised correction plan."
           nodes={postureContentGraphNodes}
+          image={{ src: postureComparisonImg, alt: "Diagram comparing ideal human posture against common postural deviations" }}
         />
         <Testimonials />
         <Book />
