@@ -8,6 +8,7 @@ import { MetaTags } from "@/components/MetaTags";
 import { ContentGraph } from "@/components/ContentGraph";
 import { StructuredData } from "@/components/StructuredData";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
+import emsSculptingImg from "@/assets/ems-sculpting-graph.webp";
 
 const scrollTo = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
   e.preventDefault();
@@ -908,7 +909,7 @@ export default function SculptPage() {
         title="Body Sculpting in Mumbai | Non-Surgical Fat Reduction | AIWO"
         description="Transform your body with AIWO Sculpt. Non-surgical body contouring helps reduce stubborn fat, tone muscles and improve body shape. Book today."
         path="/services/ems-sculpting"
-        image="/aiwologo.jpg"
+        image={emsSculptingImg}
       />
       <StructuredData id="sculpt-service" data={sculptStructuredData.service} />
       <StructuredData id="sculpt-breadcrumb" data={sculptStructuredData.breadcrumb} />
@@ -938,6 +939,7 @@ export default function SculptPage() {
           eyebrow="Service Journey"
           heading="From scheduling to your programme."
           nodes={sculptContentGraphNodes}
+          image={{ src: emsSculptingImg, alt: "Client receiving supervised AIWO EMS body-contouring treatment" }}
         />
         <FAQSection />
       </main>

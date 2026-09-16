@@ -8,6 +8,7 @@ import { MetaTags } from "@/components/MetaTags";
 import { ContentGraph } from "@/components/ContentGraph";
 import { StructuredData } from "@/components/StructuredData";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import ivTherapyImg from "@/assets/iv-therapy-graph.webp";
 
 /* ─────────────────────────────────────────────────────────────────
    Constants
@@ -821,7 +822,7 @@ export default function IVTherapyPage() {
         title="IV Therapy in Mumbai | Immunity, Energy & Skin Glow | AIWO"
         description="Experience personalized IV Therapy in Mumbai for immunity, hydration, energy, recovery, anti-aging and glowing skin. Book your IV drip at AIWO today."
         path="/services/iv-therapy"
-        image="/aiwologo.jpg"
+        image={ivTherapyImg}
       />
       <StructuredData id="iv-service" data={ivStructuredData.service} />
       <StructuredData id="iv-breadcrumb" data={ivStructuredData.breadcrumb} />
@@ -846,6 +847,7 @@ export default function IVTherapyPage() {
           eyebrow="Service Journey"
           heading="From consultation to your next visit."
           nodes={ivContentGraphNodes}
+          image={{ src: ivTherapyImg, alt: "Client receiving supervised AIWO IV therapy" }}
         />
         <FAQSection />       {/* S9 */}
       </main>
